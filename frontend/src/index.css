@@ -2,7 +2,26 @@
    HOJA DE ESTILOS CSS PURO - SIMULACIÓN E-COMMERCE VOKE BRASIL
    ========================================================================== */
 
+/* cambios 111026*/
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  display: block;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
 /* VARIABLES NATIVAS DEL SITIO REAL VOKE.COM */
+
 :root {
     --voke-almost-white: #F8F9FA;
     --voke-almost-black: #343434;
@@ -1960,4 +1979,215 @@
 .voke-profile-return-wrapper {
   margin-bottom: 20px;
   width: 100%;
+}
+/*11102026*/
+/* ===== Responsive final con Flex ===== */
+@media (max-width: 1024px) {
+  .voke-navbar-main,
+  .voke-menu-links,
+  .voke-nav-controls,
+  .voke-cart-flex-layout,
+  .voke-footer-grid-container,
+  .voke-buttons-flex {
+    display: flex;
+  }
+
+  .voke-navbar-main {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .voke-search-container {
+    flex: 1 1 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .voke-menu-links {
+    gap: 14px;
+    font-size: 10px;
+    flex-wrap: wrap;
+  }
+
+  .voke-vitrina-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+  }
+
+  .voke-tarjeta-producto {
+    width: calc(50% - 12px);
+    min-width: 220px;
+  }
+
+  .voke-cart-flex-layout {
+    flex-direction: column;
+  }
+
+  .voke-cart-items-column,
+  .voke-cart-summary-column {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .voke-footer-grid-container {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 768px) {
+  .voke-navbar-main,
+  .voke-menu-links,
+  .voke-nav-controls,
+  .voke-buttons-flex,
+  .voke-cart-flex-layout {
+    display: flex;
+  }
+
+  .voke-navbar-main {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .voke-nav-controls {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .voke-search-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+  }
+
+  .voke-menu-subbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px 8px 52px;
+    overflow: hidden;
+    /*padding: 8px 12px;*/
+  }
+ .voke-menu-hamburguesa {
+    position: static;
+    flex-shrink: 0;
+    left: auto;
+    margin-right: 8px;
+  }
+  .voke-menu-links {
+  width: auto;
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    white-space: nowrap;
+    font-size: 9px;
+    padding-right: 8px;
+    /*justify-content: flex-start;
+    overflow-x: auto;
+    white-space: nowrap;
+    gap: 10px;
+    font-size: 9px;*/
+  }
+
+  .voke-vitrina-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .voke-tarjeta-producto {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .voke-cart-flex-layout {
+    flex-direction: column;
+  }
+
+  .voke-product-card-horizontal {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .voke-cart-item-image-frame {
+    width: 100%;
+    min-width: 0;
+    margin-bottom: 12px;
+  }
+
+  .voke-cart-item-details {
+    margin: 0;
+    width: 100%;
+  }
+
+  .voke-footer-grid-container {
+    flex-direction: column;
+  }
+
+  .voke-footer-column {
+    min-width: 100%;
+  }
+
+  .voke-login-card-box {
+    padding: 20px 14px;
+  }
+}
+
+@media (max-width: 430px) {
+  .voke-login-wrapper {
+    padding: 18px 10px;
+  }
+
+  .voke-login-card-box {
+    padding: 20px 14px;
+  }
+
+  .voke-form-input-text,
+  .voke-boletin-input,
+  .voke-btn-volver,
+  .voke-btn-continuar,
+  .voke-btn-salvar-datos,
+  .voke-btn-salvar-clave,
+  .voke-btn-eliminar,
+  .voke-submit-btn-black,
+  .voke-boletin-btn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+
+  .voke-buttons-flex {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .voke-btn-volver,
+  .voke-btn-continuar,
+  .voke-btn-salvar-datos,
+  .voke-btn-salvar-clave,
+  .voke-btn-eliminar,
+  .voke-submit-btn-black {
+    width: 100%;
+  }
+
+  .voke-notif-list {
+    grid-template-columns: 1fr;
+  }
+
+  .voke-nav-controls {
+    gap: 12px;
+    justify-content: space-between;
+  }
+  .voke-menu-subbar {
+    padding-left: 14px;
+  }
+
+  .voke-menu-links {
+    gap: 8px;
+    font-size: 8px;
+  }
 }
