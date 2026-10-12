@@ -30,7 +30,7 @@ const Navbar = () => {
       const configuracion = { headers: { 'Authorization': `Bearer ${token}` } };
       
       // Consultamos al backend la nómina de pedidos para extraer el último de este cliente
-      const res = await api.get('/logistica/pedidos-todos', configuracion);
+      const res = await api.get('/logistica/mis-pedidos', configuracion);
       
       // Obtenemos los datos del usuario actual desde el LocalStorage
       const usuarioGuardado = localStorage.getItem('voke_usuario');

@@ -9,9 +9,21 @@ Simulación fullstack de una tienda de productos electrónicos, desarrollada con
 - Base de datos: PostgreSQL.
 - Frontend publicado en GitHub Pages; API y base PostgreSQL desplegadas con Render.
 
+## Controles de seguridad
+
+- El registro público crea cuentas con perfil `cliente`; el perfil enviado por el navegador se ignora.
+- Las operaciones administrativas requieren JWT y un rol `admin` verificado contra PostgreSQL en cada petición.
+- Las rutas de cuenta exigen autenticación y solo permiten actuar sobre el ID del usuario autenticado.
+- El seguimiento por ID requiere sesión y solo devuelve pedidos del usuario propietario. El rastreo por código y los endpoints de autenticación tienen límites de solicitudes.
+- CORS compara orígenes exactos. Para agregar un origen de producción, configura `CORS_ORIGINS` en Render como una lista separada por comas.
+- PostgreSQL y JWT requieren variables de entorno explícitas; no hay contraseña `root` de respaldo.
+- Login, registro y rastreo público tienen límites de solicitudes; el servidor de desarrollo usa `node --watch` sin `nodemon`.
+
+Estos controles reducen riesgos, pero no sustituyen una auditoría profesional, copias de seguridad ni la rotación de credenciales si se sospecha una exposición.
+
 ## Requisitos locales
 
-- Node.js y npm.
+- Node.js 22 o compatible con Vite 8 y `node --watch`, más npm.
 - PostgreSQL local si se desea usar una base de datos local.
 - Variables de entorno propias para el backend, guardadas en `backend/.env`. No subir ese archivo ni compartir sus contraseñas.
 

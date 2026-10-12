@@ -7,17 +7,17 @@ const {
     crearCategoriaAdmin,
     eliminarCategoriaAdmin 
 } = require('../controllers/dashboardController');
-const { autenticarToken } = require('../middlewares/authMiddleware');
+const { autenticarToken, autorizarAdmin } = require('../middlewares/authMiddleware');
 
 // --- 1. ENDPOINTS DE ANALÍTICA E INVENTARIO COLECTIVO ---
-router.get('/analitica', autenticarToken, obtenerMetricasGenerales);
-router.get('/categorias', autenticarToken, listarCategoriasAdmin);
-router.post('/categorias', autenticarToken, crearCategoriaAdmin);
-router.delete('/categorias/:id', autenticarToken, eliminarCategoriaAdmin);
+router.get('/analitica', autenticarToken, autorizarAdmin, obtenerMetricasGenerales);
+router.get('/categorias', autenticarToken, autorizarAdmin, listarCategoriasAdmin);
+router.post('/categorias', autenticarToken, autorizarAdmin, crearCategoriaAdmin);
+router.delete('/categorias/:id', autenticarToken, autorizarAdmin, eliminarCategoriaAdmin);
 
 // --- 2. ENDPOINTS ADICIONALES: CONTROL DE PERSONAL Y ROLES (NUEVO) ---
 // Obtener la lista completa de todas las cuentas registradas en PostgreSQL
-router.get('/usuarios', autenticarToken, async (req, res) => {
+router.get('/usuarios', autenticarToken, autorizarAdmin, async (req, res) => {
     try {
         const query = `
             SELECT u.id, u.email, u.perfil, u.fecha_registro, cp.nome_completo 
@@ -34,7 +34,7 @@ router.get('/usuarios', autenticarToken, async (req, res) => {
 });
 
 // Cambiar o alternar el rol entre 'cliente' y 'admin'
-router.put('/usuarios/rol/:id', autenticarToken, async (req, res) => {
+router.put('/usuarios/rol/:id', autenticarToken, autorizarAdmin, async (req, res) => {
     const { id } = req.params;
     const { nuevoPerfil } = req.body; // Se espera 'cliente' o 'admin'
 

@@ -16,7 +16,7 @@ const pool = require('../config/db'); // Importación limpia y unificada
 const registrarUsuario = async (req, res) => {
     const { 
         email, contrasena, cpf_cnpj, nome_completo, 
-        fecha_nacimiento, sexo, telefono, cep, direccion, ciudad, perfil 
+        fecha_nacimiento, sexo, telefono, cep, direccion, ciudad
     } = req.body;
 
     // Validación básica de campos obligatorios
@@ -39,7 +39,7 @@ const registrarUsuario = async (req, res) => {
             VALUES ($1, $2, $3) 
             RETURNING id, email, perfil;
         `;
-        const tipoPerfil = perfil || 'cliente'; // Por defecto es cliente
+        const tipoPerfil = 'cliente';
         const resUsuario = await client.query(queryUsuario, [email, contrasenaEncriptada, tipoPerfil]);
         const usuarioId = resUsuario.rows[0].id;
 

@@ -31,7 +31,7 @@ const Navbar = () => {
 
     try {
       const configuracion = { headers: { 'Authorization': `Bearer ${token}` } };
-      const res = await api.get('/logistica/pedidos-todos', configuracion);
+      const res = await api.get('/logistica/mis-pedidos', configuracion);
       
       const usuarioGuardado = localStorage.getItem('voke_usuario');
       const user = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;

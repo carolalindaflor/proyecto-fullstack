@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const pool = require('../config/db');
-const { autenticarToken } = require('../middlewares/authMiddleware');
+const { autenticarToken, autorizarAdmin } = require('../middlewares/authMiddleware');
 
 // =========================================================================
 // 1. VISTA DEL CLIENTE: CONSULTAR LÍNEA DE TIEMPO DE UN PEDIDO (GET)
 // =========================================================================
-router.get('/seguimiento/:id', async (req, res) => {
+router.get('/seguimiento/:id', autenticarToken, async (req, res) => {
     const { id } = req.params; // Puede ser el ID numérico del pedido
 
     try {
@@ -14,9 +14,9 @@ router.get('/seguimiento/:id', async (req, res) => {
         const pedidoQuery = `
             SELECT id, total, status_envio, fecha_pedido, cep, direccion, ciudad 
             FROM pedidos 
-            WHERE id = $1;
+            WHERE id = $1 AND usuario_id = $2;
         `;
-        const pedidoRes = await pool.query(pedidoQuery, [id]);
+        const pedidoRes = await pool.query(pedidoQuery, [id, req.usuario.id]);
 
         if (pedidoRes.rows.length === 0) {
             return res.status(404).json({ error: "Pedido não encontrado no sistema." });
@@ -41,10 +41,27 @@ router.get('/seguimiento/:id', async (req, res) => {
     }
 });
 
+router.get('/mis-pedidos', autenticarToken, async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT p.id, p.fecha_pedido, cp.nome_completo, u.email
+            FROM pedidos p
+            JOIN usuarios u ON u.id = p.usuario_id
+            LEFT JOIN clientes_perfil cp ON cp.usuario_id = u.id
+            WHERE p.usuario_id = $1
+            ORDER BY p.fecha_pedido DESC
+        `, [req.usuario.id]);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error al listar pedidos del usuario:', error);
+        res.status(500).json({ error: 'No se pudieron consultar tus pedidos.' });
+    }
+});
+
 // =========================================================================
 // 2. VISTA DEL ADMINISTRADOR: CAMBIAR ESTADO Y CREAR HISTORIAL (PUT)
 // =========================================================================
-router.put('/actualizar-estado/:id', autenticarToken, async (req, res) => {
+router.put('/actualizar-estado/:id', autenticarToken, autorizarAdmin, async (req, res) => {
     const { id } = req.params;
     const { nuevoEstado, detallesHistorial } = req.body; 
 
@@ -99,7 +116,7 @@ router.put('/actualizar-estado/:id', autenticarToken, async (req, res) => {
 // =========================================================================
 // 3. VISTA DEL ADMINISTRADOR: OBTENER TODOS LOS PEDIDOS REGISTRADOS (GET)
 // =========================================================================
-router.get('/pedidos-todos', autenticarToken, async (req, res) => {
+router.get('/pedidos-todos', autenticarToken, autorizarAdmin, async (req, res) => {
     try {
         const query = `
             SELECT p.id, p.total, p.metodo_pago, p.status_envio, p.estado_pago, p.fecha_pedido, p.ciudad, cp.nome_completo

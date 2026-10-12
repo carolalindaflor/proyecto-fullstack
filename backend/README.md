@@ -8,6 +8,8 @@ Backend robusto desarrollado en **Node.js con Express** y persistencia de datos 
 
 En desarrollo local, crea `backend/.env` con los datos de tu instalación local de PostgreSQL. En Render, configura los valores equivalentes en el apartado **Environment** del servicio backend. No subas `.env` al repositorio ni publiques contraseñas reales.
 
+Usa Node.js 22 o una versión compatible con el modo `--watch` usado durante el desarrollo.
+
 Ejemplo local (reemplaza los valores con los de tu entorno):
 ```text
 PORT=3001
@@ -18,9 +20,11 @@ DB_PORT=5432
 DB_NAME=ecommerce
 JWT_SECRET=una_frase_secreta_local
 FRONTEND_URL=http://localhost:5173
+CORS_ORIGINS=https://jagq68.github.io
 ```
 
 El backend activa SSL cuando `DB_HOST` apunta a un servidor remoto. Render puede proporcionar `PORT`; localmente se usa `3001` si no se define.
+En producción, el origen permitido por defecto es `https://jagq68.github.io`. Para autorizar otro frontend, configura `CORS_ORIGINS` con orígenes exactos separados por comas. No se permiten coincidencias por prefijo.
 
 ## Ejecución local
 
@@ -46,6 +50,12 @@ npm run migrate:product-brand
 El comando modifica la base indicada por las variables de ese entorno: ejecutarlo localmente no modifica Render. En Render, el arranque de la aplicación ejecuta la misma migración con las variables configuradas para el servicio. Es idempotente, así que puede ejecutarse de nuevo sin volver a agregar columnas.
 
 **No ejecutes `node init-db.js` sobre una base con información que quieras conservar.** Ese archivo contiene `DROP TABLE ... CASCADE` y reconstruye las tablas. Está destinado exclusivamente a inicializar o reiniciar una base descartable. `seed.js` inserta datos de ejemplo; ejecútalo solo al preparar una base vacía y no como parte de cada despliegue.
+
+## Controles de acceso y límites
+
+El registro público siempre crea perfil `cliente`. Las rutas administrativas exigen un JWT y consultan el rol actual en PostgreSQL. Las operaciones de perfil requieren que el ID de la URL coincida con el ID autenticado. El seguimiento por ID solo permite consultar pedidos propios; el listado global está reservado a administradores.
+
+Login, registro y rastreo público tienen límites de solicitudes por IP con `express-rate-limit`. El almacenamiento de límites es local a cada instancia; si se ejecutan varias instancias detrás de un balanceador, se debe configurar un almacén compartido para que el límite sea global.
 
 ---
 

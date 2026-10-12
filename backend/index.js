@@ -1,4 +1,7 @@
 require('dotenv').config();
+if (!process.env.JWT_SECRET) {
+    throw new Error('JWT_SECRET debe estar configurado en el entorno del backend.');
+}
 const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
@@ -17,28 +20,23 @@ const chatbotRoutes = require('./routes/chatbotRoutes');
 const logisticaRoutes = require('./routes/logisticaRoutes');
 
 const app = express();
-// 1. Declaramos la lista de servidores autorizados a consumir datos
-// const origenesPermitidos = [
-//   'http://localhost:5173',          // Tu desarrollo en la laptop
-//   'http://127.0.0.1:5173',         // Tu desarrollo local por IP
-//   'https://github.io'       // Tu tienda oficial publicada en internet
-// ];
+app.set('trust proxy', 1);
+const origenesPermitidos = new Set(
+    (process.env.CORS_ORIGINS || 'https://jagq68.github.io')
+        .split(',')
+        .map(origen => origen.trim())
+        .filter(Boolean)
+);
 
-// 2. Aplicamos la función validadora adaptativa de origen cruzado
-// 🚀 REGLA DE SEGURIDAD UNIVERSAL PARA ENTORNO DE PRODUCCIÓN Y LOCAL
 app.use(cors({
     origin: function (origin, callback) {
-        // 1. Si la petición es interna del mismo servidor (sin origin) o viene de tu laptop
-        if (!origin || 
-            origin.startsWith('http://localhost:') || 
-            origin.startsWith('http://127.0.0.1:') || 
-            // 2. ⚡ FILTRO EXCLUSIVO DE INTERNET: Autoriza de golpe tu perfil oficial de GitHub Pages
-            origin.startsWith('https://jagq68.github.io')) {
-            
-            callback(null, true); // ✅ Permitido de forma legítima
-        } else {
-            callback(new Error('Bloqueado por políticas de CORS de Voke')); // ❌ Bloqueado por seguridad
-        }
+        if (!origin) return callback(null, true);
+
+        const origenLocalPermitido = process.env.NODE_ENV !== 'production'
+            && /^http:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin);
+        if (origenesPermitidos.has(origin) || origenLocalPermitido) return callback(null, true);
+
+        callback(new Error('Origen no permitido por la política CORS.'));
     },
     credentials: true,               // Permite el intercambio seguro de tokens y cookies de sesión
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -56,11 +54,11 @@ app.use(express.urlencoded({ extended: true }));
 
 // Configuración de la conexión a PostgreSQL
 const pool = new Pool({
-    user: process.env.DB_USER || 'postgres',
-    password: process.env.DB_PASSWORD || 'root',
-    host: process.env.DB_HOST || 'localhost',
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    host: process.env.DB_HOST,
     port: process.env.DB_PORT || 5432,
-    database: process.env.DB_NAME || 'ecommerce',//102026
+    database: process.env.DB_NAME,
     // 🚀 LÍNEA CLAVE: Si detecta que está corriendo en Render (porque tiene DB_HOST externo), activa el SSL seguro
     ssl: process.env.DB_HOST && process.env.DB_HOST !== 'localhost' 
         ? { rejectUnauthorized: false } 
