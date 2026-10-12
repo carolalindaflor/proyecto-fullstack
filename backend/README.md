@@ -98,7 +98,10 @@ curl -X POST http://localhost:3001/api/auth/register -H "Content-Type: applicati
 ```json
 {
   "nombre": "TV 50 Pulgadas",
+  "marca": "Samsung",
+  "descripcion": "Televisor Smart TV de 50 pulgadas",
   "precio": 2800.00,
+  "stock": 10,
   "categoriaId": 1,
   "imagenes": [
     "https://link-da-imagem.com",
@@ -106,6 +109,13 @@ curl -X POST http://localhost:3001/api/auth/register -H "Content-Type: applicati
   ]
 }
 ```
+
+#### Migración de datos de producto
+Para una base existente, ejecutar desde `backend/`:
+```bash
+npm run migrate:product-brand
+```
+El script `backend/migrations/add-product-brand.js` agrega `productos.marca` y `productos.descripcion` si todavía no existen. No elimina tablas ni registros. La imagen se guarda en la tabla existente `producto_imagenes`; no requiere una modificación de esquema. El dashboard permite consultar y editar productos, y bloquea la eliminación cuando el producto está asociado a un carrito o pedido.
 
 ---
 

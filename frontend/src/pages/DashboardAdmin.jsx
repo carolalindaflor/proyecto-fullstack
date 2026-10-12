@@ -1,36 +1,50 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../config/api';
 
 const DashboardAdmin = () => {
+  const navigate = useNavigate();
   // CONFIGURACIÓN DE ESTADOS REALES UNIFICADOS
   const [metricas, setMetricas] = useState(null);               
   const [categorias, setCategorias] = useState([]);             
   const [usuarios, setUsuarios] = useState([]);                 
   const [pedidos, setPedidos] = useState([]); 
+  const [productos, setProductos] = useState([]);
+  const [productoEditandoId, setProductoEditandoId] = useState(null);
   const [nuevaCategoria, setNuevaCategoria] = useState('');
+  const [nuevoProducto, setNuevoProducto] = useState({
+    nombre: '',
+    marca: '',
+    descripcion: '',
+    precio: '',
+    stock: '0',
+    categoriaId: '',
+    imagenUrl: ''
+  });
+  const [estadoVistaPrevia, setEstadoVistaPrevia] = useState('');
   const [cargando, setCargando] = useState(true);
   const [errorDashboard, setErrorDashboard] = useState('');
   const [mensajeExito, setMensajeExito] = useState('');
 
   // 1. CARGA INICIAL COMPLETA (Promise.all con 4 consultas en paralelo)
   const cargarInformacionDashboard = async () => {
-    setCargando(true);
-    setErrorDashboard('');
     try {
       const token = localStorage.getItem('voke_token');
       const configuracion = { headers: { 'Authorization': `Bearer ${token}` } };
 
-      const [resAnalitica, resCategorias, resUsuarios, resPedidos] = await Promise.all([
+      const [resAnalitica, resCategorias, resUsuarios, resPedidos, resProductos] = await Promise.all([
         api.get('/dashboard/analitica', configuracion),
         api.get('/dashboard/categorias', configuracion),
         api.get('/dashboard/usuarios', configuracion),
-        api.get('/logistica/pedidos-todos', configuracion)
+        api.get('/logistica/pedidos-todos', configuracion),
+        api.get('/produtos')
       ]);
 
       setMetricas(resAnalitica.data);
       setCategorias(resCategorias.data);
       setUsuarios(resUsuarios.data);
       setPedidos(resPedidos.data);
+      setProductos(resProductos.data);
     } catch (err) {
       console.error(err);
       setErrorDashboard(err.response?.data?.error || 'Erro ao carregar dados do painel analítico.');
@@ -40,7 +54,7 @@ const DashboardAdmin = () => {
   };
 
   useEffect(() => {
-    cargarInformacionDashboard();
+    queueMicrotask(() => cargarInformacionDashboard());
   }, []);
   // 2. FUNCIÓN PARA ALTERAR EL ESTADO LOGÍSTICO CON UN CLIC (PUT)
   const manejarCambioEstadoPedido = async (idPedido, nuevoEstado) => {
@@ -106,6 +120,88 @@ const DashboardAdmin = () => {
     }
   };
 
+  const manejarCrearProducto = async (e) => {
+    e.preventDefault();
+    setErrorDashboard('');
+    setMensajeExito('');
+
+    try {
+      const token = localStorage.getItem('voke_token');
+      const configuracion = { headers: { Authorization: `Bearer ${token}` } };
+      const { nombre, marca, descripcion, precio, stock, categoriaId, imagenUrl } = nuevoProducto;
+
+      const datosProducto = {
+        nombre: nombre.trim(),
+        marca: marca.trim(),
+        descripcion: descripcion.trim(),
+        precio: Number(precio),
+        stock: Number(stock),
+        categoriaId: Number(categoriaId),
+        imagenes: [imagenUrl.trim()]
+      };
+
+      if (productoEditandoId) {
+        await api.put(`/produtos/${productoEditandoId}`, datosProducto, configuracion);
+      } else {
+        await api.post('/produtos', datosProducto, configuracion);
+      }
+
+      setNuevoProducto({ nombre: '', marca: '', descripcion: '', precio: '', stock: '0', categoriaId: '', imagenUrl: '' });
+      setProductoEditandoId(null);
+      setEstadoVistaPrevia('');
+      setMensajeExito(productoEditandoId ? 'Producto actualizado correctamente.' : 'Producto agregado al catálogo correctamente.');
+      await cargarInformacionDashboard();
+    } catch (err) {
+      setErrorDashboard(err.response?.data?.error || 'No se pudo agregar el producto.');
+    }
+  };
+
+  const manejarEditarProducto = producto => {
+    setProductoEditandoId(producto.id);
+    setNuevoProducto({
+      nombre: producto.nombre || '',
+      marca: producto.marca || '',
+      descripcion: producto.descripcion || '',
+      precio: String(producto.precio ?? ''),
+      stock: String(producto.stock ?? 0),
+      categoriaId: String(producto.categoria_id ?? ''),
+      imagenUrl: producto.imagenes?.[0] || ''
+    });
+    setEstadoVistaPrevia(producto.imagenes?.[0] ? 'cargando' : '');
+    setErrorDashboard('');
+    setMensajeExito('');
+    document.getElementById('dashboard-product-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const manejarCancelarEdicionProducto = () => {
+    setProductoEditandoId(null);
+    setNuevoProducto({ nombre: '', marca: '', descripcion: '', precio: '', stock: '0', categoriaId: '', imagenUrl: '' });
+    setEstadoVistaPrevia('');
+  };
+
+  const manejarEliminarProducto = async producto => {
+    const usos = Number(producto.usos_carrito || 0) + Number(producto.usos_pedidos || 0);
+    if (usos > 0) return;
+    if (!window.confirm(`¿Eliminar "${producto.nombre}"? Esta acción no se puede deshacer.`)) return;
+
+    setErrorDashboard('');
+    setMensajeExito('');
+    try {
+      const token = localStorage.getItem('voke_token');
+      await api.delete(`/produtos/${producto.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      setMensajeExito('Producto eliminado del catálogo.');
+      await cargarInformacionDashboard();
+    } catch (err) {
+      setErrorDashboard(err.response?.data?.error || 'No se pudo eliminar el producto.');
+    }
+  };
+
+  const manejarCerrarSesion = () => {
+    localStorage.clear();
+    window.dispatchEvent(new Event('carrito_actualizado'));
+    navigate('/login', { replace: true });
+  };
+
   // 5. CONTROL ABM: ELIMINAR CATEGORÍA VALIDADA EN STOCK CERO (DELETE)
   const manejarEliminarCategoria = async (idCategoria) => {
     if (!window.confirm('¿Está seguro de que desea eliminar esta categoría de la base de datos?')) return;
@@ -139,9 +235,14 @@ const DashboardAdmin = () => {
   };
   return (
     <div className="voke-dashboard-wrapper-principal">
-      <div className="voke-form-title-block">
-        <h2 className="voke-form-title-text">Dashboard de Administración Voke</h2>
-        <p className="voke-form-subtitle-text">Panel analítico e inventario de control interno para el Backoffice.</p>
+      <div className="voke-dashboard-heading-row">
+        <div className="voke-form-title-block">
+          <h2 className="voke-form-title-text">Dashboard de Administración Voke</h2>
+          <p className="voke-form-subtitle-text">Panel analítico e inventario de control interno para el Backoffice.</p>
+        </div>
+        <button type="button" className="voke-navbar-btn-sair" onClick={manejarCerrarSesion}>
+          <span aria-hidden="true">↪</span> Salir
+        </button>
       </div>
 
       {errorDashboard && <div className="voke-alerta-box voke-alerta-error">{errorDashboard}</div>}
@@ -266,6 +367,195 @@ const DashboardAdmin = () => {
                   </td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* ================= SECCIÓN: ALTA DE PRODUCTOS ================= */}
+      <div className="voke-dashboard-seccion-bloque voke-profile-section-form-spaced">
+        <h3 className="voke-form-title-subsegment">
+          {productoEditandoId ? `Editar producto #${productoEditandoId}` : 'Agregar producto al catálogo'}
+        </h3>
+        <form id="dashboard-product-form" onSubmit={manejarCrearProducto} className="voke-dashboard-product-form">
+          <div className="voke-dashboard-product-fields">
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-nombre">Nombre del producto</label>
+              <input
+                id="producto-nombre"
+                className="voke-form-input-text"
+                value={nuevoProducto.nombre}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, nombre: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-marca">Marca</label>
+              <input
+                id="producto-marca"
+                className="voke-form-input-text"
+                value={nuevoProducto.marca}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, marca: event.target.value }))}
+                placeholder="Ej.: Dell, HP, Lenovo"
+                required
+              />
+            </div>
+            <div className="voke-form-group-block voke-dashboard-product-description">
+              <label className="voke-form-label" htmlFor="producto-descripcion">Descripción</label>
+              <textarea
+                id="producto-descripcion"
+                className="voke-form-input-text voke-dashboard-product-textarea"
+                value={nuevoProducto.descripcion}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, descripcion: event.target.value }))}
+                rows="3"
+              />
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-precio">Precio (R$)</label>
+              <input
+                id="producto-precio"
+                className="voke-form-input-text"
+                type="number"
+                min="0.01"
+                step="0.01"
+                value={nuevoProducto.precio}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, precio: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-stock">Stock inicial</label>
+              <input
+                id="producto-stock"
+                className="voke-form-input-text"
+                type="number"
+                min="0"
+                step="1"
+                value={nuevoProducto.stock}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, stock: event.target.value }))}
+                required
+              />
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-categoria">Categoría</label>
+              <select
+                id="producto-categoria"
+                className="voke-form-input-text"
+                value={nuevoProducto.categoriaId}
+                onChange={event => setNuevoProducto(actual => ({ ...actual, categoriaId: event.target.value }))}
+                required
+              >
+                <option value="">Selecciona una categoría</option>
+                {categorias.map(categoria => (
+                  <option key={categoria.id} value={categoria.id}>{categoria.nombre}</option>
+                ))}
+              </select>
+            </div>
+            <div className="voke-form-group-block">
+              <label className="voke-form-label" htmlFor="producto-imagen">URL de imagen</label>
+              <input
+                id="producto-imagen"
+                className="voke-form-input-text"
+                type="url"
+                value={nuevoProducto.imagenUrl}
+                onChange={event => {
+                  setNuevoProducto(actual => ({ ...actual, imagenUrl: event.target.value }));
+                  setEstadoVistaPrevia(event.target.value.trim() ? 'cargando' : '');
+                }}
+                placeholder="Enlace directo .jpg, .png o .webp"
+                required
+              />
+            </div>
+          </div>
+          {nuevoProducto.imagenUrl && (
+            <div className="voke-dashboard-product-preview-area" aria-live="polite">
+              {estadoVistaPrevia !== 'error' && (
+                <img
+                  className="voke-dashboard-product-image-preview"
+                  src={nuevoProducto.imagenUrl.trim()}
+                  alt="Vista previa del producto"
+                  onError={() => setEstadoVistaPrevia('error')}
+                  onLoad={() => setEstadoVistaPrevia('lista')}
+                />
+              )}
+              {estadoVistaPrevia === 'cargando' && <p className="voke-dashboard-preview-message">Cargando imagen...</p>}
+              {estadoVistaPrevia === 'error' && (
+                <p className="voke-dashboard-preview-message voke-dashboard-preview-error">
+                  No se pudo cargar. Usa la URL directa del archivo de imagen, no la página de Pixabay u otra página web.
+                </p>
+              )}
+              {estadoVistaPrevia === 'lista' && <p className="voke-dashboard-preview-message">Vista previa lista</p>}
+            </div>
+          )}
+          <div className="voke-dashboard-product-actions">
+            <button type="submit" className="voke-submit-btn-black btn-alta-dashboard">
+              {productoEditandoId ? 'Guardar cambios' : 'Guardar producto'}
+            </button>
+            {productoEditandoId && (
+              <button type="button" className="voke-btn-volver" onClick={manejarCancelarEdicionProducto}>
+                Cancelar edición
+              </button>
+            )}
+          </div>
+        </form>
+      </div>
+
+      <div className="voke-dashboard-seccion-bloque">
+        <h3 className="voke-form-title-subsegment">Consultar y administrar productos</h3>
+        <div className="voke-dashboard-tabla-contenedor">
+          <table className="voke-dashboard-tabla">
+            <thead>
+              <tr>
+                <th>Producto</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th>Descripción</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Uso</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {productos.map(producto => {
+                const enUso = Number(producto.usos_carrito || 0) + Number(producto.usos_pedidos || 0) > 0;
+                const categoria = categorias.find(item => Number(item.id) === Number(producto.categoria_id));
+                return (
+                  <tr key={producto.id}>
+                    <td>
+                      <div className="voke-dashboard-product-table-name">
+                        {producto.imagenes?.[0] && <img src={producto.imagenes[0]} alt="" loading="lazy" />}
+                        <span>{producto.nombre}</span>
+                      </div>
+                    </td>
+                    <td>{producto.marca || 'Sin marca'}</td>
+                    <td>{categoria?.nombre || 'Sin categoría'}</td>
+                    <td>{producto.descripcion || 'Sin descripción'}</td>
+                    <td>R$ {Number(producto.precio || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</td>
+                    <td>{producto.stock} un.</td>
+                    <td>{enUso ? `Carritos: ${producto.usos_carrito || 0}; pedidos: ${producto.usos_pedidos || 0}` : 'Sin referencias'}</td>
+                    <td>
+                      <div className="voke-dashboard-product-row-actions">
+                        <button type="button" className="voke-btn-rol-toggle btn-ascend" onClick={() => manejarEditarProducto(producto)}>
+                          Editar
+                        </button>
+                        <button
+                          type="button"
+                          className="voke-btn-eliminar btn-baja-dashboard"
+                          onClick={() => manejarEliminarProducto(producto)}
+                          disabled={enUso}
+                          title={enUso ? 'No se puede eliminar porque está asociado a un carrito o pedido' : 'Eliminar producto'}
+                        >
+                          {enUso ? 'En uso' : 'Eliminar'}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+              {productos.length === 0 && (
+                <tr><td colSpan="8">No hay productos registrados.</td></tr>
+              )}
             </tbody>
           </table>
         </div>

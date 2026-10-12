@@ -15,7 +15,9 @@ const obtenerProductos = async (req, res) => {
     try {
         // Hacemos una consulta estructurando las imágenes de la tabla secundaria en un array JSON
         const query = `
-            SELECT p.*, COALESCE(json_agg(pi.url) FILTER (WHERE pi.url IS NOT NULL), '[]') AS imagenes
+            SELECT p.*, COALESCE(json_agg(pi.url) FILTER (WHERE pi.url IS NOT NULL), '[]') AS imagenes,
+                (SELECT COUNT(*)::int FROM carrito_elementos ce WHERE ce.producto_id = p.id) AS usos_carrito,
+                (SELECT COUNT(*)::int FROM pedido_elementos pe WHERE pe.producto_id = p.id) AS usos_pedidos
             FROM productos p
             LEFT JOIN producto_imagenes pi ON p.id = pi.producto_id
             GROUP BY p.id
@@ -53,9 +55,12 @@ const obtenerProductoPorId = async (req, res) => {
 
 // POST /api/produtos (Crear producto e insertar sus imágenes - Solo admin)
 const crearProducto = async (req, res) => {
-    const { nombre, precio, categoriaId, imagenes } = req.body;
-    if (!nombre || !precio) {
-        return res.status(400).json({ error: "Nombre y precio son campos obligatorios." });
+    const { nombre, marca, descripcion = '', precio, stock = 0, categoriaId, imagenes } = req.body;
+    if (!nombre?.trim() || !marca?.trim() || !categoriaId || !Number.isFinite(Number(precio)) || Number(precio) <= 0) {
+        return res.status(400).json({ error: "Nombre, marca, categoría y un precio mayor que cero son obligatorios." });
+    }
+    if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
+        return res.status(400).json({ error: "El stock debe ser un número entero igual o mayor que cero." });
     }
 
     const client = await pool.connect();
@@ -64,10 +69,10 @@ const crearProducto = async (req, res) => {
 
         // 1. Insertar el producto base
         const queryProducto = `
-            INSERT INTO productos (nombre, precio, categoria_id) 
-            VALUES ($1, $2, $3) RETURNING *;
+            INSERT INTO productos (nombre, marca, descripcion, precio, stock, categoria_id)
+            VALUES ($1, $2, $3, $4, $5, $6) RETURNING *;
         `;
-        const resProd = await client.query(queryProducto, [nombre, precio, categoriaId || null]);
+        const resProd = await client.query(queryProducto, [nombre.trim(), marca.trim(), descripcion.trim(), precio, stock, categoriaId]);
         const nuevoProducto = resProd.rows[0];
 
         // 2. Insertar las imágenes en la tabla secundaria si vienen en la petición
@@ -94,7 +99,14 @@ const crearProducto = async (req, res) => {
 // PUT /api/produtos/:id (Actualizar producto e imágenes - Solo admin)
 const actualizarProducto = async (req, res) => {
     const { id } = req.params;
-    const { nombre, precio, categoriaId, imagenes } = req.body;
+    const { nombre, marca, descripcion = '', precio, stock, categoriaId, imagenes } = req.body;
+
+    if (!nombre?.trim() || !marca?.trim() || !categoriaId || !Number.isFinite(Number(precio)) || Number(precio) <= 0) {
+        return res.status(400).json({ error: "Nombre, marca, categoría y un precio mayor que cero son obligatorios." });
+    }
+    if (!Number.isInteger(Number(stock)) || Number(stock) < 0) {
+        return res.status(400).json({ error: "El stock debe ser un número entero igual o mayor que cero." });
+    }
 
     const client = await pool.connect();
     try {
@@ -103,10 +115,10 @@ const actualizarProducto = async (req, res) => {
         // 1. Actualizar datos base del producto
         const queryProducto = `
             UPDATE productos 
-            SET nombre = $1, precio = $2, categoria_id = $3 
-            WHERE id = $4 RETURNING *;
+            SET nombre = $1, marca = $2, descripcion = $3, precio = $4, stock = $5, categoria_id = $6
+            WHERE id = $7 RETURNING *;
         `;
-        const resProd = await client.query(queryProducto, [nombre, precio, categoriaId, id]);
+        const resProd = await client.query(queryProducto, [nombre.trim(), marca.trim(), descripcion.trim(), precio, stock, categoriaId, id]);
         
         if (resProd.rows.length === 0) {
             await client.query('ROLLBACK');
@@ -138,17 +150,37 @@ const actualizarProducto = async (req, res) => {
 // DELETE /api/produtos/:id (Eliminar producto y sus imágenes en cascada - Solo admin)
 const eliminarProducto = async (req, res) => {
     const { id } = req.params;
+    const client = await pool.connect();
     try {
-        // Nota: Gracias al "ON DELETE CASCADE" que definimos en SQL, 
-        // borrar el producto eliminará sus registros en producto_imagenes automáticamente.
-        const result = await pool.query('DELETE FROM productos WHERE id = \$1 RETURNING *', [id]);
+        await client.query('BEGIN');
+        const producto = await client.query('SELECT id FROM productos WHERE id = $1 FOR UPDATE', [id]);
+        if (producto.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: "Producto no encontrado." });
+        }
+
+        const referencias = await client.query(`
+            SELECT
+                EXISTS (SELECT 1 FROM carrito_elementos WHERE producto_id = $1) AS en_carrito,
+                EXISTS (SELECT 1 FROM pedido_elementos WHERE producto_id = $1) AS en_pedido
+        `, [id]);
+        if (referencias.rows[0].en_carrito || referencias.rows[0].en_pedido) {
+            await client.query('ROLLBACK');
+            return res.status(409).json({ error: "No se puede eliminar: el producto está asociado a un carrito o pedido." });
+        }
+
+        const result = await client.query('DELETE FROM productos WHERE id = $1 RETURNING *', [id]);
+        await client.query('COMMIT');
         if (result.rows.length === 0) {
             return res.status(404).json({ error: "Producto no encontrado." });
         }
         res.json({ mensaje: "Producto eliminado con éxito de la base de datos." });
     } catch (error) {
+        await client.query('ROLLBACK');
         console.error("Error al eliminar producto:", error);
         res.status(500).json({ error: "Error interno del servidor." });
+    } finally {
+        client.release();
     }
 };
 

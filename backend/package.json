@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon index.js",
-    "start": "node ./index.js"
+    "start": "node migrations/add-product-brand.js && node ./index.js",
+    "migrate:product-brand": "node migrations/add-product-brand.js"
   },
   "keywords": [],
   "author": "",

@@ -29,8 +29,8 @@ async function poblarBaseDatos() {
         // 2. Insertar Productos con STOCK disponible para la pasarela de pagos e Imágenes mapeados
         for (const prod of productos) {
             const queryProducto = `
-                INSERT INTO productos (nombre, precio, stock, categoria_id) 
-                VALUES ($1, $2, $3, $4) 
+                INSERT INTO productos (nombre, marca, precio, stock, categoria_id)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id;
             `;
             
@@ -39,6 +39,7 @@ async function poblarBaseDatos() {
 
             const resProd = await pool.query(queryProducto, [
                 prod.nombre, 
+                prod.marca || null,
                 prod.precio, 
                 stockSemilla, 
                 prod.categoryId

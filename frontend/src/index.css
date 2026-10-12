@@ -1661,6 +1661,91 @@ video {
   max-width: 600px;
 }
 
+.voke-dashboard-product-form {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.voke-dashboard-product-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 4px 16px;
+  width: 100%;
+}
+
+.voke-dashboard-product-description {
+  grid-column: 1 / -1;
+}
+
+.voke-dashboard-product-textarea {
+  height: auto;
+  min-height: 88px;
+  padding: 10px 14px;
+  resize: vertical;
+}
+
+.voke-dashboard-product-actions,
+.voke-dashboard-product-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.voke-dashboard-product-table-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 220px;
+}
+
+.voke-dashboard-product-table-name img {
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  object-fit: contain;
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 4px;
+  background: var(--voke-white);
+}
+
+.voke-dashboard-product-row-actions .btn-baja-dashboard:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.voke-dashboard-product-preview-area {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  width: 100%;
+}
+
+.voke-dashboard-product-image-preview {
+  width: 180px;
+  height: 140px;
+  object-fit: contain;
+  border: 1px solid var(--voke-light-gray);
+  border-radius: 4px;
+  padding: 8px;
+  background-color: var(--voke-white);
+}
+
+.voke-dashboard-preview-message {
+  max-width: 440px;
+  margin: 0;
+  font-size: 13px;
+  color: var(--voke-almost-black);
+}
+
+.voke-dashboard-preview-error {
+  color: var(--voke-red);
+}
+
 .btn-alta-dashboard {
   white-space: nowrap;
   width: auto !important;

@@ -1,37 +1,60 @@
-import React, { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import api from '../config/api';
+
+const leerUsuarioGuardado = () => {
+  try {
+    const guardado = localStorage.getItem('voke_usuario');
+    return guardado ? JSON.parse(guardado) : null;
+  } catch {
+    return null;
+  }
+};
 
 const DrawerMenu = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  
-  // Estado para controlar qué menú o departamento principal está expandido
-  const [submenuAbierto, setSubmenuAbierto] = useState(null);
+  const user = isOpen ? leerUsuarioGuardado() : null;
+  const [categorias, setCategorias] = useState(null);
+  const [productos, setProductos] = useState([]);
+  const [categoriaAbierta, setCategoriaAbierta] = useState(null);
+  const [errorCategorias, setErrorCategorias] = useState('');
 
-  // Sincronizar el usuario del LocalStorage en tiempo real al abrir el menú
   useEffect(() => {
-    if (isOpen) {
-      const guardado = localStorage.getItem('voke_usuario');
-      if (guardado) {
-        setUser(JSON.parse(guardado));
-      } else {
-        setUser(null);
-      }
-    }
+    if (!isOpen) return undefined;
+
+    let activo = true;
+    Promise.all([api.get('/categorias'), api.get('/produtos')])
+      .then(([respuestaCategorias, respuestaProductos]) => {
+        if (activo) {
+          setCategorias(Array.isArray(respuestaCategorias.data) ? respuestaCategorias.data : []);
+          setProductos(Array.isArray(respuestaProductos.data) ? respuestaProductos.data : []);
+          setErrorCategorias('');
+        }
+      })
+      .catch(error => {
+        console.error('Error al cargar las categorías:', error);
+        if (activo) {
+          setCategorias([]);
+          setProductos([]);
+          setErrorCategorias('No se pudieron cargar los departamentos.');
+        }
+      });
+    return () => {
+      activo = false;
+    };
   }, [isOpen]);
 
-  // Función auxiliar para redirigir al catálogo aplicando filtros de búsqueda en la URL
-  const buscarProducto = (categoria, marca = '') => {
-    const url = marca 
-      ? `/?categoria=${encodeURIComponent(categoria)}&marca=${encodeURIComponent(marca)}`
-      : `/?categoria=${encodeURIComponent(categoria)}`;
-    navigate(url);
-    onClose(); // Cierra el menú lateral al hacer clic
+  const cargandoCategorias = categorias === null && !errorCategorias;
+
+  const buscarProducto = (categoriaId, marca = '') => {
+    const parametros = new URLSearchParams({ categoria: String(categoriaId) });
+    if (marca) parametros.set('marca', marca);
+    navigate(`/?${parametros.toString()}`);
+    onClose();
   };
 
-  // Alternar la apertura de los submenús de departamentos
-  const toggleSubmenu = (menu) => {
-    setSubmenuAbierto(submenuAbierto === menu ? null : menu);
+  const alternarCategoria = categoriaId => {
+    setCategoriaAbierta(actual => actual === categoriaId ? null : categoriaId);
   };
 
   if (!isOpen) return null;
@@ -65,124 +88,69 @@ const DrawerMenu = ({ isOpen, onClose }) => {
         <div className="voke-drawer-navigation">
           <div className="voke-menu-section-title">Departamentos</div>
           <ul className="voke-main-menu-list">
-            {/* --- 1. CUADERNOS --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('cuadernos')}>
-                <span>Cuadernos</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'cuadernos' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'cuadernos' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Cuadernos')}>Acceder a todas las marcas</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Cuadernos', 'Dell')}>Dell</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Cuadernos', 'HP')}>HP</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Cuadernos', 'Lenovo')}>Lenovo</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Cuadernos', 'Positivo')}>Positivo</li>
-                </ul>
-              )}
-            </li>
-
-            {/* --- 2. COMPUTADORAS --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('computadoras')}>
-                <span>Computadoras</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'computadoras' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'computadoras' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Computadoras')}>Acceder a todo</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Computadoras', 'Dell')}>Dell</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Computadoras', 'HP')}>HP</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Computadoras', 'Lenovo')}>Lenovo</li>
-                </ul>
-              )}
-            </li>
-
-            {/* --- 3. SMARTPHONES --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('smartphones')}>
-                <span>Smartphones</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'smartphones' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'smartphones' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Smartphones')}>Acceder a todo</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Smartphones', 'Apple')}>Manzana</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Smartphones', 'LG')}>LG</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Smartphones', 'Motorola')}>Motorola</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Smartphones', 'Samsung')}>Samsung</li>
-                </ul>
-              )}
-            </li>
-
-            {/* --- 4. TABLETAS --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('tabletas')}>
-                <span>Tabletas</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'tabletas' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'tabletas' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Tabletas')}>Acceder a todo</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Tabletas', 'Apple')}>Manzana</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Tabletas', 'Samsung')}>Samsung</li>
-                </ul>
-              )}
-            </li>
-
-            {/* --- 5. MONITORES --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('monitores')}>
-                <span>Monitores</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'monitores' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'monitores' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Monitores')}>Acceder a todo</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Monitores', '19P')}>19P</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Monitores', '20P')}>20P</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Monitores', '22P')}>22P</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Monitores', '23P')}>23P</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Monitores', '24P')}>24P</li>
-                </ul>
-              )}
-            </li>
-            {/* --- 6. ACCESORIOS Y PERIFÉRICOS --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger-direct" onClick={() => buscarProducto('Accesorios')}>
-                <span>Accesorios y Periféricos</span>
-              </div>
-            </li>
-
-            {/* --- 7. MENU MANZANA (APPLE GENERAL) --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger" onClick={() => toggleSubmenu('manzana')}>
-                <span>Menu Manzana</span>
-                <span className="voke-menu-arrow">{submenuAbierto === 'manzana' ? '▲' : '▼'}</span>
-              </div>
-              {submenuAbierto === 'manzana' && (
-                <ul className="voke-submenu-list">
-                  <li className="voke-submenu-item-all" onClick={() => buscarProducto('Apple')}>Acceder a todo</li>
-                  <li className="voke-submenu-title">Marcas</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Apple', 'iPad')}>iPad</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Apple', 'iPhone')}>iPhone</li>
-                  <li className="voke-submenu-item" onClick={() => buscarProducto('Apple', 'Macbook')}>Macbook</li>
-                </ul>
-              )}
-            </li>
-
-            {/* --- 8. CHROMEBOOK --- */}
-            <li className="voke-menu-item-main">
-              <div className="voke-menu-trigger-direct" onClick={() => buscarProducto('Chromebook')}>
-                <span>Menu Chromebook</span>
-              </div>
-            </li>
-
+            {cargandoCategorias && (
+              <li className="voke-submenu-item">Cargando departamentos...</li>
+            )}
+            {errorCategorias && (
+              <li className="voke-submenu-item">{errorCategorias}</li>
+            )}
+            {!cargandoCategorias && !errorCategorias && categorias.map(categoria => (
+              <li className="voke-menu-item-main" key={categoria.id}>
+                <div
+                  className="voke-menu-trigger"
+                  onClick={() => alternarCategoria(categoria.id)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter' || event.key === ' ') alternarCategoria(categoria.id);
+                  }}
+                  aria-expanded={categoriaAbierta === categoria.id}
+                >
+                  <span>{categoria.nombre}</span>
+                  <span className="voke-menu-arrow">{categoriaAbierta === categoria.id ? '▲' : '▼'}</span>
+                </div>
+                {categoriaAbierta === categoria.id && (
+                  <ul className="voke-submenu-list">
+                    <li
+                      className="voke-submenu-item-all"
+                      onClick={() => buscarProducto(categoria.id)}
+                      role="button"
+                      tabIndex={0}
+                      onKeyDown={event => {
+                        if (event.key === 'Enter' || event.key === ' ') buscarProducto(categoria.id);
+                      }}
+                    >
+                      Acceder a todo
+                    </li>
+                    <li className="voke-submenu-title">Marcas</li>
+                    {Array.from(new Set(productos
+                      .filter(producto => Number(producto.categoria_id) === Number(categoria.id))
+                      .map(producto => producto.marca?.trim())
+                      .filter(Boolean)))
+                      .sort((marcaA, marcaB) => marcaA.localeCompare(marcaB, 'pt-BR'))
+                      .map(marca => (
+                        <li
+                          className="voke-submenu-item"
+                          key={marca}
+                          onClick={() => buscarProducto(categoria.id, marca)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={event => {
+                            if (event.key === 'Enter' || event.key === ' ') buscarProducto(categoria.id, marca);
+                          }}
+                        >
+                          {marca}
+                        </li>
+                      ))}
+                    {productos.every(producto =>
+                      Number(producto.categoria_id) !== Number(categoria.id) || !producto.marca?.trim()
+                    ) && (
+                      <li className="voke-submenu-item">Sin marcas registradas</li>
+                    )}
+                  </ul>
+                )}
+              </li>
+            ))}
           </ul>
         </div>
 

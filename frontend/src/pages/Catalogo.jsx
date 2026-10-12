@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import api from '../config/api';
 
+const normalizarTexto = valor => valor
+  .toLocaleLowerCase('pt-BR')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '');
+
 const Catalogo = () => {
   const location = useLocation();
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [notificacion, setNotificacion] = useState('');
   const [actualizarContador, setActualizarContador] = useState(0);
@@ -18,41 +24,40 @@ const Catalogo = () => {
     const cargarYFiltrarProductos = async () => {
       setCargando(true);
       try {
-        // 1. Consumimos el inventario real desde PostgreSQL
-        const respuesta = await api.get('/produtos');
-        let listaFiltrada = respuesta.data || [];
+        // Cargamos el inventario y las categorías reales desde PostgreSQL.
+        const [respuestaProductos, respuestaCategorias] = await Promise.all([
+          api.get('/produtos'),
+          api.get('/categorias')
+        ]);
+        let listaFiltrada = respuestaProductos.data || [];
+        const categorias = respuestaCategorias.data || [];
+        setCategorias(categorias);
 
         // 2. Extraemos los parámetros de búsqueda de la URL
         const queryParams = new URLSearchParams(location.search);
         const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
-        const terminoCategoria = queryParams.get('categoria')?.toLowerCase().trim() || '';
+        const terminoCategoria = queryParams.get('categoria')?.trim() || '';
         const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
-
-        // 3. FILTRADO INTELIGENTE POR CATEGORIA_ID (Mapeo relacional de Voke)
         if (terminoCategoria) {
-          listaFiltrada = listaFiltrada.filter(prod => {
-            const idCat = parseInt(prod.categoria_id);
-            
-            // Asignación de ID según el ítem seleccionado en el DrawerMenu
-            if (terminoCategoria === 'cuadernos') return idCat === 1;
-            if (terminoCategoria === 'computadoras') return idCat === 2;
-            if (terminoCategoria === 'smartphones') return idCat === 3;
-            if (terminoCategoria === 'tabletas') return idCat === 4;
-            if (terminoCategoria === 'monitores') return idCat === 5;
-            if (terminoCategoria === 'accesorios') return idCat === 6;
-            if (terminoCategoria === 'apple') return idCat === 7;
-            if (terminoCategoria === 'chromebook') return idCat === 8;
-            
-            return true;
-          });
+          const categoriaPorId = categorias.find(categoria => String(categoria.id) === terminoCategoria);
+          const categoriaSeleccionada = categoriaPorId || categorias.find(
+            categoria => normalizarTexto(categoria.nombre) === normalizarTexto(terminoCategoria)
+          );
+
+          listaFiltrada = categoriaSeleccionada
+            ? listaFiltrada.filter(prod => Number(prod.categoria_id) === Number(categoriaSeleccionada.id))
+            : [];
         }
 
         // 4. FILTRADO INTELIGENTE POR MARCA (Busca la palabra adentro del campo nombre)
         if (terminoMarca) {
           listaFiltrada = listaFiltrada.filter(prod => {
             const nombreProd = (prod.nombre || '').toLowerCase();
-            const marcaABuscar = terminoMarca === 'manzana' ? 'apple' : terminoMarca; // Traduce Manzana a Apple si es necesario
-            return nombreProd.includes(marcaABuscar);
+            const marcaProducto = (prod.marca || '').trim();
+            const marcaABuscar = terminoMarca.toLocaleLowerCase('pt-BR');
+            return marcaProducto
+              ? normalizarTexto(marcaProducto) === normalizarTexto(marcaABuscar)
+              : nombreProd.includes(marcaABuscar);
           });
         }
 
@@ -117,8 +122,12 @@ const Catalogo = () => {
                 const queryParams = new URLSearchParams(location.search);
                 const cat = queryParams.get('categoria');
                 const marc = queryParams.get('marca');
-                if (cat && marc) return `Ofertas em ${cat} - ${marc}`;
-                if (cat) return `Ofertas em ${cat}`;
+                const categoria = categorias.find(item =>
+                  String(item.id) === cat || normalizarTexto(item.nombre) === normalizarTexto(cat || '')
+                );
+                const nomeCategoria = categoria?.nombre || cat;
+                if (cat && marc) return `Ofertas em ${nomeCategoria} - ${marc}`;
+                if (cat) return `Ofertas em ${nomeCategoria}`;
                 if (marc) return `Ofertas de ${marc}`;
                 return "As melhores ofertas";
               })()}

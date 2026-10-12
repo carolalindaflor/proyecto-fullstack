@@ -2,6 +2,7 @@
   {
     "id": 1,
     "nombre": "Portátil Thinkpad T14 Gen 2I Core I5-11G° SSD 256Gb 16G RAM - 14\" Win 11 Pro",
+    "marca": "Lenovo",
     "precio": 2799.0,
     "categoryId": 1,
     "imagenes": [
@@ -12,6 +13,7 @@
   {
     "id": 2,
     "nombre": "Chromebook Lenovo 100E 2nd Celeron N4000 32GB 4GB ChromeOS",
+    "marca": "Lenovo",
     "precio": 759.0,
     "categoryId": 1,
     "imagenes": [
@@ -22,6 +24,7 @@
   {
     "id": 3,
     "nombre": "IdeaPad 1i Intel Core i3-1315U 8GB 256GB SSD Linux 15.6\" FHD",
+    "marca": "Lenovo",
     "precio": 2501.16,
     "categoryId": 2,
     "imagenes": [
@@ -32,6 +35,7 @@
   {
     "id": 4,
     "nombre": "ThinkStation P3 Intel Core i7-137/00 vPro Windows 11 Pro 16GB 512GB SSD RTX A1000 8GB",
+    "marca": "Lenovo",
     "precio": 11902.8,
     "categoryId": 2,
     "imagenes": [
@@ -42,6 +46,7 @@
   {
     "id": 5,
     "nombre": "ThinkCentre neo 30s Intel Core i5-13420H 8GB 256GB SSD Windows 11 Pro",
+    "marca": "Lenovo",
     "precio": 4249.92,
     "categoryId": 2,
     "imagenes": [
@@ -52,6 +57,7 @@
   {
     "id": 6,
     "nombre": "ThinkCentre M75s AMD Ryzen 5 PRO 8500G 16GB 512GB SSD Windows 11 Pro",
+    "marca": "Lenovo",
     "precio": 4200.0,
     "categoryId": 1,
     "imagenes": [
@@ -62,6 +68,7 @@
   {
     "id": 7,
     "nombre": "Xiaomi Redmi 12 Lite 256GB - Rosa",
+    "marca": "Xiaomi",
     "precio": 1489.9,
     "categoryId": 3,
     "imagenes": [
@@ -73,6 +80,7 @@
   {
     "id": 8,
     "nombre": "Samsung Galaxy A22 128GB 4GB Android Negro Desbloqueado",
+    "marca": "Samsung",
     "precio": 729.0,
     "categoryId": 3,
     "imagenes": [
@@ -84,6 +92,7 @@
   {
     "id": 9,
     "nombre": "Apple iPhone SE 2nd Gen 64GB 3GB iOS 4G Negro",
+    "marca": "Apple",
     "precio": 999.0,
     "categoryId": 3,
     "imagenes": [
@@ -95,6 +104,7 @@
   {
     "id": 10,
     "nombre": "Apple iPad 7 A2197 32GB - Plata (Wi-Fi)",
+    "marca": "Apple",
     "precio": 1499.0,
     "categoryId": 4,
     "imagenes": [
@@ -106,6 +116,7 @@
   {
     "id": 11,
     "nombre": "Samsung Galaxy Tab S6 Lite 64Gb 4Gb Ram - Gris",
+    "marca": "Samsung",
     "precio": 1599.0,
     "categoryId": 4,
     "imagenes": [
@@ -117,6 +128,7 @@
   {
     "id": 12,
     "nombre": "Lenovo TAB K11 con lápiz y funda, MediaTek Helio G88, 4 GB de RAM, 128 GB de disco duro, Wi-Fi, Android 14, 11\" FHD",
+    "marca": "Lenovo",
     "precio": 1741.8,
     "categoryId": 4,
     "imagenes": [
@@ -128,6 +140,7 @@
   {
     "id": 13,
     "nombre": "Monitor ThinkVision 27\" T27i-30 FHD (1920x1080) 60Hz",
+    "marca": "Lenovo",
     "precio": 1755.12,
     "categoryId": 5,
     "imagenes": [
@@ -137,6 +150,7 @@
   {
     "id": 14,
     "nombre": "Lenovo Legion 44.5\" R45w-30 DQHD (5120x1440) 170Hz Monitor curvo para juegos",
+    "marca": "Lenovo",
     "precio": 6999.96,
     "categoryId": 5,
     "imagenes": [
@@ -148,6 +162,7 @@
   {
     "id": 15,
     "nombre": "Monitor Gamer Lenovo Legion 24.5\" R25f-30 FHD (1920x1080) 240Hz",
+    "marca": "Lenovo",
     "precio": 1489.9,
     "categoryId": 5,
     "imagenes": [
@@ -158,6 +173,7 @@
   {
     "id": 16,
     "nombre": "Portátil Yoga Slim 7x (14″ Snapdragon)",
+    "marca": "Lenovo",
     "precio": 10799.9,
     "categoryId": 1,
     "imagenes": [
