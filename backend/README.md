@@ -4,18 +4,48 @@ Backend robusto desarrollado en **Node.js con Express** y persistencia de datos 
 
 ---
 
-## 🛠️ Variables de Entorno (.env)
-Asegúrese de poseer un archivo `.env` configurado en la raíz de su backend con los siguientes parámetros:
+## Variables de entorno
+
+En desarrollo local, crea `backend/.env` con los datos de tu instalación local de PostgreSQL. En Render, configura los valores equivalentes en el apartado **Environment** del servicio backend. No subas `.env` al repositorio ni publiques contraseñas reales.
+
+Ejemplo local (reemplaza los valores con los de tu entorno):
 ```text
 PORT=3001
 DB_USER=postgres
 DB_PASSWORD=su_contraseña
 DB_HOST=localhost
 DB_PORT=5432
-DB_NAME=ecomerce_deb
-JWT_SECRET=SuFraseSecretaSegura
+DB_NAME=ecommerce
+JWT_SECRET=una_frase_secreta_local
 FRONTEND_URL=http://localhost:5173
 ```
+
+El backend activa SSL cuando `DB_HOST` apunta a un servidor remoto. Render puede proporcionar `PORT`; localmente se usa `3001` si no se define.
+
+## Ejecución local
+
+Desde la carpeta `backend/`:
+
+```bash
+npm install
+npm run dev
+```
+
+El arranque importa `migrations/add-product-brand.js` y completa la migración antes de iniciar Express en `http://localhost:3001`. La migración usa las variables de entorno activas en ese proceso. El frontend se inicia por separado desde `frontend/` con `npm run dev` y normalmente queda en `http://localhost:5173/`.
+
+## Inicialización y migraciones de PostgreSQL
+
+`migrations/add-product-brand.js` es la migración segura para una base ya creada. Agrega `productos.marca` y `productos.descripcion` si faltan, conserva los datos y asigna las marcas conocidas a productos semilla cuyo nombre coincide. El alta de imágenes sigue usando la tabla `producto_imagenes` existente.
+
+También se puede ejecutar manualmente, desde `backend/`:
+
+```bash
+npm run migrate:product-brand
+```
+
+El comando modifica la base indicada por las variables de ese entorno: ejecutarlo localmente no modifica Render. En Render, el arranque de la aplicación ejecuta la misma migración con las variables configuradas para el servicio. Es idempotente, así que puede ejecutarse de nuevo sin volver a agregar columnas.
+
+**No ejecutes `node init-db.js` sobre una base con información que quieras conservar.** Ese archivo contiene `DROP TABLE ... CASCADE` y reconstruye las tablas. Está destinado exclusivamente a inicializar o reiniciar una base descartable. `seed.js` inserta datos de ejemplo; ejecútalo solo al preparar una base vacía y no como parte de cada despliegue.
 
 ---
 
@@ -110,12 +140,8 @@ curl -X POST http://localhost:3001/api/auth/register -H "Content-Type: applicati
 }
 ```
 
-#### Migración de datos de producto
-Para una base existente, ejecutar desde `backend/`:
-```bash
-npm run migrate:product-brand
-```
-El script `backend/migrations/add-product-brand.js` agrega `productos.marca` y `productos.descripcion` si todavía no existen. No elimina tablas ni registros. La imagen se guarda en la tabla existente `producto_imagenes`; no requiere una modificación de esquema. El dashboard permite consultar y editar productos, y bloquea la eliminación cuando el producto está asociado a un carrito o pedido.
+#### Administración de productos
+El dashboard permite consultar, agregar y actualizar nombre, marca, descripción, categoría, precio, stock e imagen. Las imágenes se almacenan en `producto_imagenes`. La eliminación se bloquea si el producto está asociado a elementos de carrito o pedido; la API verifica esta condición además del botón del dashboard.
 
 ---
 
