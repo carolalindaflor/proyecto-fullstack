@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const { Pool } = require('pg');
 const { iniciarSimuladorLogistico } = require('./config/simuladorLogistico');
+const migrarMarcaProductos = require('./migrations/add-product-brand');
 
 // IMPORTAR TODAS LAS RUTAS
 const authRoutes = require('./routes/authRoutes');
@@ -118,10 +119,17 @@ app.use((err, req, res, next) => {
 // ==========================================
 const PORT = process.env.PORT || 3001;
 
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor backend escuchando en: http://localhost:${PORT}`);
-    iniciarSimuladorLogistico();
-});
+migrarMarcaProductos()
+    .then(() => {
+        app.listen(PORT, () => {
+            console.log(`🚀 Servidor backend escuchando en: http://localhost:${PORT}`);
+            iniciarSimuladorLogistico();
+        });
+    })
+    .catch(error => {
+        console.error('No se pudo preparar el esquema de productos:', error);
+        process.exit(1);
+    });
 //respaldo 
 // require('dotenv').config();
 // const express = require('express');

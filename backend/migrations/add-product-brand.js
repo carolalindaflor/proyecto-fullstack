@@ -8,8 +8,9 @@ const productos = JSON.parse(
 );
 
 async function migrarMarcaProductos() {
-    const client = await pool.connect();
+    let client;
     try {
+        client = await pool.connect();
         await client.query('BEGIN');
         await client.query('ALTER TABLE productos ADD COLUMN IF NOT EXISTS marca VARCHAR(100)');
         await client.query('ALTER TABLE productos ADD COLUMN IF NOT EXISTS descripcion TEXT');
@@ -25,13 +26,21 @@ async function migrarMarcaProductos() {
         await client.query('COMMIT');
         console.log('Migración completada: marca y descripción disponibles en productos; datos semilla actualizados.');
     } catch (error) {
-        await client.query('ROLLBACK');
-        console.error('No se pudo completar la migración de marcas:', error);
-        process.exitCode = 1;
+        if (client) await client.query('ROLLBACK');
+        throw error;
     } finally {
-        client.release();
+        if (client) client.release();
         await pool.end();
     }
 }
 
-migrarMarcaProductos();
+if (require.main === module) {
+    migrarMarcaProductos()
+        .then(() => console.log('Migración de columnas de producto completada.'))
+        .catch(error => {
+            console.error('No se pudo completar la migración de productos:', error);
+            process.exitCode = 1;
+        });
+}
+
+module.exports = migrarMarcaProductos;
