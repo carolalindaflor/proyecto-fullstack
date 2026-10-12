@@ -7,7 +7,7 @@ const productos = JSON.parse(
     fs.readFileSync(path.join(__dirname, '..', 'productos_data.json'), 'utf8')
 );
 
-async function migrarMarcaProductos() {
+async function migrarMarcaProductos({ cerrarPool = false } = {}) {
     let client;
     try {
         client = await pool.connect();
@@ -30,12 +30,12 @@ async function migrarMarcaProductos() {
         throw error;
     } finally {
         if (client) client.release();
-        await pool.end();
+        if (cerrarPool) await pool.end();
     }
 }
 
 if (require.main === module) {
-    migrarMarcaProductos()
+    migrarMarcaProductos({ cerrarPool: true })
         .then(() => console.log('Migración de columnas de producto completada.'))
         .catch(error => {
             console.error('No se pudo completar la migración de productos:', error);
