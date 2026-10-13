@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import api from '../config/api';
 
@@ -36,11 +36,6 @@ const Login = () => {
     // ⚡ LÍNEA DE ESCAPE DEFINITIVA: Si no hay sesión activa, bloqueamos el useEffect de inmediato.
     // Esto permite que cambies a la fase de 'registro' libremente sin que el sistema te regrese a 'acceso'.
     if (!guardado || !token) {
-      setUser(null);
-      // Solo forzamos 'acceso' si la fase actual no es 'registro' para no congelar el botón
-      if (faseActual !== 'registro') {
-        setFaseActual('acceso');
-      }
       return; // Detiene la ejecución aquí y protege el formulario
     }
 
@@ -167,14 +162,12 @@ const Login = () => {
   };
 
   const registrar = async (e) => {
-        // Protección inteligente: Solo ejecuta preventDefault si el evento y la función existen de verdad
-    if (e && typeof e.preventDefault === 'function') {
-        e.preventDefault();
-    }
-    //e.preventDefault();
+    e.preventDefault();
     setAlerta({ txt: '', err: false });
-    if (!email || !pass) {return setAlerta({ txt: 'Por favor, preencha e-mail e senha.', err: true });}
-    if (pass !== confPass) return setAlerta({ txt: 'As senhas não coincidem.', err: true });
+    if (!email || !pass || !numDoc || !nombre) {
+      return setAlerta({ txt: 'Completa nombre, documento, correo y contraseña.', err: true });
+    }
+    if (pass !== confPass) return setAlerta({ txt: 'Las contraseñas no coinciden.', err: true });
     
     try {
       const datos = { 
@@ -189,39 +182,16 @@ const Login = () => {
       };
       
       // 🚀 MIGRADO A AXIOS: Petición directa y adaptativa
-      const response = await api.post('/auth/register', datos);
-      const data = response.data;
+      await api.post('/auth/register', datos);
 
-      // Guardamos las credenciales generadas de forma inmediata
-      localStorage.setItem('voke_token', data.token);
-      localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
-      
-      // Establecemos el estado global para iniciar sesión automáticamente
-      setUser(data.usuario);
-      
-      // LIMPIEZA CLAVE: Se vacían los estados de contraseña del formulario de registro
+      // El registro crea la cuenta, pero la sesión se inicia mediante el formulario de acceso.
+      setUser(null);
       setContrasenaAnterior('');
       setPass('');
       setConfPass('');
-      
-      window.dispatchEvent(new Event('carrito_actualizado'));
-      
-      // ⚡ MODIFICACIÓN SOLICITADA: Envía al cliente logueado directamente a la tienda
-
-      //navigate('/');
-     // 🚀 REDIRECCIÓN INTELIGENTE DE PRODUCCIÓN BASADA EN EL ROL DE POSTGRESQL
-      // Evaluamos el perfil real que devolvió tu controlador de Node.js en Render
-      if (usuarioValido?.perfil?.toLowerCase() === 'admin') {
-        console.log("¡Credenciales de Administrador detectadas! Redirigiendo al Panel...");
-        navigate('/admin/dashboard'); // 📊 Si eres admin, te abre el Dashboard al instante
-      } else {
-        console.log("Credenciales de Cliente detectadas. Redirigiendo a la vitrina...");
-        navigate('/'); // 🛍️ Si eres cliente común, te manda a comprar laptops
-      } 
+      setFaseActual('acceso');
+      setAlerta({ txt: 'Cuenta creada correctamente. Inicia sesión con tu correo y contraseña.', err: false });
     } catch (err) {
-      localStorage.removeItem('voke_token');
-      localStorage.removeItem('voke_usuario');
-      setUser(null);
       // Captura el error real del controlador de Node.js
       const msg = err.response?.data?.error || err.message || 'Erro ao realizar cadastro no sistema.';
       setAlerta({ txt: msg, err: true });
@@ -353,6 +323,9 @@ const Login = () => {
                     onClick={() => setFaseActual('registro')} 
                     className="voke-login-link-blue"
                   >Registrar una Cuenta</button>
+                  <Link to="/" className="voke-login-link-blue voke-login-link-block">
+                    Continuar explorando sin iniciar sesión
+                  </Link>
                   {/* <span onClick={() => setFaseActual('registro')} className="voke-login-link-blue">Registro</span> */}
                 </div>
                 
@@ -392,7 +365,7 @@ const Login = () => {
         )}
         {/* --- FASE 2: REGISTRO EXTENDIDO --- */}
         {faseActual === 'registro' && !user && (
-          <form onSubmit={(e) => e.preventDefault()}>
+          <form onSubmit={registrar}>
             <div className="voke-form-title-block">
               <h3 className="voke-form-title-text">Crear una cuenta</h3>
             </div>
@@ -408,12 +381,12 @@ const Login = () => {
             
             <div className="voke-form-group-block">
               <label className="voke-form-label">{tipoDocumento}</label>
-              <input type="text" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} placeholder="000.000.000-00" className="voke-form-input-text" />
+              <input type="text" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} placeholder="000.000.000-00" className="voke-form-input-text" required />
             </div>
             
             <div className="voke-form-group-block">
               <label className="voke-form-label">Nombre completo</label>
-              <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Escribe tu nombre." className="voke-form-input-text" />
+              <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Escribe tu nombre." className="voke-form-input-text" required />
             </div>
             
             <div className="voke-form-group-block">
@@ -437,12 +410,12 @@ const Login = () => {
             
             <div className="voke-form-group-block">
               <label className="voke-form-label">Correo electrónico</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Introduce tu mejor dirección de correo electrónico." className="voke-form-input-text" />
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Introduce tu mejor dirección de correo electrónico." className="voke-form-input-text" required />
             </div>
             
             <div className="voke-form-group-block">
               <label className="voke-form-label">Contraseña</label>
-              <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Introduce tu contraseña." className="voke-form-input-text" />
+              <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Introduce tu contraseña." className="voke-form-input-text" required />
             </div>
 
             <div className="voke-consejos-box">
@@ -459,7 +432,7 @@ const Login = () => {
             
             <div className="voke-form-group-block-spaced">
               <label className="voke-form-label">confirmar Contraseña</label>
-              <input type="password" value={confPass} onChange={(e) => setConfPass(e.target.value)} placeholder="Introduzca la misma contraseña que arriba." className="voke-form-input-text" />
+              <input type="password" value={confPass} onChange={(e) => setConfPass(e.target.value)} placeholder="Introduzca la misma contraseña que arriba." className="voke-form-input-text" required />
             </div>
 
             <div className="voke-form-group-block">
@@ -475,7 +448,7 @@ const Login = () => {
 
             <div className="voke-buttons-flex">
               <button type="button" onClick={() => setFaseActual('acceso')} className="voke-btn-volver">Volver</button>
-              <button type="button" onClick={registrar} className="voke-btn-continuar">Continuar con el registro</button>
+              <button type="submit" className="voke-btn-continuar">Continuar con el registro</button>
             </div>
           </form>
         )}
