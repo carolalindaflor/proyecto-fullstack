@@ -36,15 +36,15 @@ const simularAvanceLogistico = async () => {
         if (paraEntregar.length > 0) {
             console.log(`🤖 [Simulador Voke]: Procesando entrega final para ${paraEntregar.length} pedido(s)...`);
             for (const ped of paraEntregar) {
-                // 1. Inyectamos el estado definitivo 'Entregue' en la línea de tiempo logístico
+                // 1. Inyectamos el estado definitivo en la línea de tiempo logística.
                 const queryEntrega = `
                     INSERT INTO seguimiento_envios (pedido_id, estado_logistico, detalles)
                     VALUES ($1, 'Entregue', 'Pedido entregue com sucesso no endereço do destinatário. Obrigado por comprar na Voke Brasil!');
                 `;
                 await pool.query(queryEntrega, [ped.pedido_id]);
 
-                // 2. Modificamos también la cabecera del pedido para darlo por cerrado logísticamente
-                await pool.query("UPDATE pedidos SET estado_pago = 'Entregue' WHERE id = \$1", [ped.pedido_id]);
+                // El envío y el pago son estados distintos: una entrega no altera el pago aprobado.
+                await pool.query("UPDATE pedidos SET status_envio = 'Entregado' WHERE id = $1", [ped.pedido_id]);
 
                 console.log(`🏠 [Logística Voke]: ¡Pedido ID ${ped.pedido_id} ha sido marcado como "Entregue"!`);
             }

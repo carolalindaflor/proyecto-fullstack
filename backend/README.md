@@ -26,6 +26,12 @@ CORS_ORIGINS=https://jagq68.github.io
 El backend activa SSL cuando `DB_HOST` apunta a un servidor remoto. Render puede proporcionar `PORT`; localmente se usa `3001` si no se define.
 En producción, el origen permitido por defecto es `https://jagq68.github.io`. Para autorizar otro frontend, configura `CORS_ORIGINS` con orígenes exactos separados por comas. No se permiten coincidencias por prefijo.
 
+## Persistencia de métricas y estados de pedido
+
+Las ventas del dashboard se calculan desde la tabla persistente `pedidos`, sumando los pedidos con `estado_pago = 'Pago Aprovado'`; no dependen de que el usuario siga conectado. El estado del pago y el estado logístico son campos diferentes: al completar una entrega, el simulador cambia `pedidos.status_envio` a `Entregado` y conserva `pedidos.estado_pago` como aprobado.
+
+En versiones anteriores, el simulador pudo guardar `Entregue` en `estado_pago`, haciendo que esos pedidos dejaran de entrar en las métricas de ventas aunque siguieran en PostgreSQL. La migración idempotente `migrations/add-product-brand.js`, ejecutada al arrancar, convierte solo esas filas a pago aprobado y envío entregado. No borra pedidos, importes ni detalles; se aplica tanto en local como en Render.
+
 ## Ejecución local
 
 Desde la carpeta `backend/`:

@@ -23,8 +23,14 @@ async function migrarMarcaProductos({ cerrarPool = false } = {}) {
             );
         }
 
+        const pedidosReparados = await client.query(`
+            UPDATE pedidos
+            SET estado_pago = 'Pago Aprovado', status_envio = 'Entregado'
+            WHERE estado_pago = 'Entregue'
+        `);
+
         await client.query('COMMIT');
-        console.log('Migración completada: marca y descripción disponibles en productos; datos semilla actualizados.');
+        console.log('Migración completada: marca/descripción preparadas; pedidos reparados: ' + pedidosReparados.rowCount + '.');
     } catch (error) {
         if (client) await client.query('ROLLBACK');
         throw error;

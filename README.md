@@ -53,6 +53,8 @@ Vite mostrará una URL local, normalmente `http://localhost:5173/`. Para verla e
 
 El frontend local usa la API local en `http://localhost:3001/api`. Por eso, para probar login, catálogo y administración con PostgreSQL local, deben estar activos tanto el backend como el frontend.
 
+Desde `frontend/`, `npm run lint` ejecuta ESLint y `npm run build` ejecuta primero ESLint y luego Vite. Los archivos identificados como copias antiguas (`*old*`) se excluyen del lint; los componentes activos siguen verificados. Los errores del linter no suelen impedir que `vite build` compile, por eso el script de build encadena ahora ambos pasos.
+
 ## Base de datos y migraciones
 
 La migración para las columnas de marca y descripción está en [backend/migrations/add-product-brand.js](backend/migrations/add-product-brand.js). Agrega `marca` y `descripcion` a `productos` si no existen, conserva el resto de los datos y completa marcas para productos que coinciden con el inventario semilla. Las imágenes continúan en `producto_imagenes`; no se agregó una tabla de imágenes nueva.
@@ -66,6 +68,8 @@ npm run migrate:product-brand
 El comando usa las variables disponibles en ese entorno. Si lo ejecutas localmente, modifica la base local configurada en `backend/.env`; no cambia la base de Render. En el backend, `npm run dev` y `npm start` también ejecutan la migración durante el arranque, antes de aceptar peticiones.
 
 **No ejecutes `node init-db.js` sobre una base con datos que quieras conservar.** Ese script elimina y vuelve a crear las tablas. Solo debe usarse para crear/resetear una base descartable. `seed.js` carga el inventario de ejemplo y debe ejecutarse únicamente cuando se quiera poblar una base preparada para ese fin.
+
+Las ventas del dashboard salen de pedidos persistidos en PostgreSQL, no del estado de sesión del navegador. Se corrigió el simulador que sobrescribía el estado de pago con el estado de entrega; el backend separa ahora pago (`estado_pago`) y envío (`status_envio`). La migración de arranque repara de forma idempotente filas antiguas afectadas, tanto en local como en Render, sin borrar pedidos ni importes.
 
 ## Productos en el dashboard
 
