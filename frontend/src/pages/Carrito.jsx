@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import api from '../config/api';
@@ -7,7 +7,6 @@ import CheckoutPedido from '../components/CheckoutPedido';
 
 
 const Carrito = () => {
-  const navigate = useNavigate();
   const [elementos, setElementos] = useState([]);
   const [totalGeneral, setTotalGeneral] = useState(0);
   const [cargando, setCargando] = useState(true);
@@ -28,7 +27,7 @@ const Carrito = () => {
   };
 
   useEffect(() => {
-    obtenerCarritoDeBD();
+    queueMicrotask(obtenerCarritoDeBD);
   }, []);
 
   const manejarEliminarProducto = async (productoId, nombreProducto) => {
@@ -78,19 +77,6 @@ const Carrito = () => {
     }
   };
 
-  const manejarCheckoutFluido = async () => {
-    try {
-      setNotificacion('⏳ Processando seu pedido na Voke...');
-      await api.post('/pedidos/checkout', { metodoPago: 'Pix' });
-      setNotificacion('🎉 Pedido Pago e Aprovado com sucesso!');
-      setElementos([]);
-      setTotalGeneral(0);
-      window.dispatchEvent(new Event('carrito_actualizado'));
-    } catch (error) {
-      console.error("Erro no checkout:", error);
-      setNotificacion('❌ Falha ao processar checkout.');
-    }
-  };
   return (
     <div className="voke-layout-wrapper">
       <div>

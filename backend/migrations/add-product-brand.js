@@ -42,7 +42,7 @@ async function migrarMarcaProductos({ cerrarPool = false } = {}) {
 
 if (require.main === module) {
     migrarMarcaProductos({ cerrarPool: true })
-        .then(() => console.log('Migración de columnas de producto completada.'))
+        .then(() => console.log('Migración de producto y reparación de estados completadas.'))
         .catch(error => {
             console.error('No se pudo completar la migración de productos:', error);
             process.exitCode = 1;

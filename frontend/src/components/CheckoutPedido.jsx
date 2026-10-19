@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../config/api';
 
@@ -24,14 +24,10 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
 
   // CÁLCULO DINÁMICO DE VALOR POR PARCELA / CUOTA
   const totalFinal = metodoPago === 'Pix' ? totalOriginal * 0.95 : totalOriginal;
-  const valorPorCuota = totalFinal / cuotas;
-
-  // Monitorear cambios en el método de pago para resetear cuotas de forma segura
-  useEffect(() => {
-    if (metodoPago === 'Pix' || metodoPago === 'Debito') {
-      setCuotas(1);
-    }
-  }, [metodoPago]);
+  const cambiarMetodoPago = metodo => {
+    setMetodoPago(metodo);
+    if (metodo === 'Pix' || metodo === 'Debito') setCuotas(1);
+  };
   // ==========================================
   // PROCESAMIENTO DE TRANSACCIÓN Y LOGÍSTICA
   // ==========================================
@@ -74,7 +70,7 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
 //ultima actualizacion
       // SOLUCIÓN DE REQ.BODY: Mapeo plano exacto para la validación de pagoController.js
       const datosPedido = {
-        items: itemsCarrito, // Arreglo de productos
+        items: productosProcesados,
         total: totalFinal,   // Monto total con o sin descuento aplicado
         metodo_pago: metodoPago, // Coincide con tu desestructuración
         cuotas: parseInt(cuotas),
@@ -211,7 +207,7 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
                 type="radio" 
                 name="metodoPago" 
                 checked={metodoPago === 'Pix'} 
-                onChange={() => setMetodoPago('Pix')} 
+                onChange={() => cambiarMetodoPago('Pix')}
               /> Pix (5% de Descuento)
             </label>
             <label className="voke-radio-label">
@@ -219,7 +215,7 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
                 type="radio" 
                 name="metodoPago" 
                 checked={metodoPago === 'Credito'} 
-                onChange={() => setMetodoPago('Credito')} 
+                onChange={() => cambiarMetodoPago('Credito')}
               /> Tarjeta de Crédito
             </label>
             <label className="voke-radio-label">
@@ -227,7 +223,7 @@ const CheckoutPedido = ({ totalOriginal, itemsCarrito, alCompletarPedido }) => {
                 type="radio" 
                 name="metodoPago" 
                 checked={metodoPago === 'Debito'} 
-                onChange={() => setMetodoPago('Debito')} 
+                onChange={() => cambiarMetodoPago('Debito')}
               /> Tarjeta de Débito
             </label>
           </div>

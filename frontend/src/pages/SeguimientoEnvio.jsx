@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import api from '../config/api';
 
@@ -39,7 +39,7 @@ const SeguimientoEnvio = () => {
   // Dispara la consulta automáticamente si el ID viaja por la URL
   useEffect(() => {
     if (id) {
-      consultarSeguimientoPedido(id);
+      queueMicrotask(() => consultarSeguimientoPedido(id));
     }
   }, [id]);
 

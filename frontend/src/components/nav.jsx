@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../config/api';
 import DrawerMenu from './DrawerMenu'; // <-- IMPORTACIÓN DEL MENÚ LATERAL
+
+const MENSAJES_VOKE = [
+  'Frete grátis para todo o Brasil em compras corporativas',
+  'Até 10x sem juros no cartão de crédito',
+  'Notebooks e Laptops reacondicionados com garantia de fábrica Voke',
+  'Ofertas especiais de Primavera - Confira nossa vitrine local'
+];
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [cantidadTotal, setCantidadTotal] = useState(0);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [ultimoPedidoId, setUltimoPedidoId] = useState(null);
-  const [menuAbierto, setMenuAbierto] = useState(false);
-
-  
   // ESTADO MAESTRO PARA CONTROLAR LA APERTURA DEL MENÚ LATERAL
   const [menuOpen, setMenuOpen] = useState(false);
   
-  const mensajesVoke = [
-    "Frete grátis para todo o Brasil em compras corporativas",
-    "Até 10x sem juros no cartão de crédito",
-    "Notebooks e Laptops reacondicionados com garantia de fábrica Voke",
-    "Ofertas especiais de Primavera - Confira nossa vitrine local"
-  ];
-
 // Función inteligente para buscar el último pedido activo del usuario logueado
   const buscarUltimoPedidoUsuario = async () => {
     const token = localStorage.getItem('voke_token');
@@ -51,7 +48,7 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    buscarUltimoPedidoUsuario();
+    queueMicrotask(buscarUltimoPedidoUsuario);
 
     // Tu lógica nativa de escuchar cambios en el carrito se mantiene idéntica...
     const actualizarContador = () => {
@@ -74,17 +71,17 @@ const Navbar = () => {
 
   useEffect(() => {
     const temporizador = setInterval(() => {
-      setIndiceMensaje((prevIndice) => (prevIndice + 1) % mensajesVoke.length);
+      setIndiceMensaje((prevIndice) => (prevIndice + 1) % MENSAJES_VOKE.length);
     }, 4000);
     return () => clearInterval(temporizador);
   }, []);
 
   const moverMensajeIzquierda = () => {
-    setIndiceMensaje((prevIndice) => (prevIndice - 1 + mensajesVoke.length) % mensajesVoke.length);
+    setIndiceMensaje((prevIndice) => (prevIndice - 1 + MENSAJES_VOKE.length) % MENSAJES_VOKE.length);
   };
 
   const moverMensajeDerecha = () => {
-    setIndiceMensaje((prevIndice) => (prevIndice + 1) % mensajesVoke.length);
+    setIndiceMensaje((prevIndice) => (prevIndice + 1) % MENSAJES_VOKE.length);
   };
 
   // FUNCIÓN DE BÚSQUEDA REAL: Filtra al presionar Enter
@@ -119,7 +116,7 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    consultarCantidadCarrito();
+    queueMicrotask(consultarCantidadCarrito);
     window.addEventListener('carrito_actualizado', consultarCantidadCarrito);
     return () => window.removeEventListener('carrito_actualizado', consultarCantidadCarrito);
   }, []);
@@ -130,7 +127,7 @@ const Navbar = () => {
       <div className="voke-top-carousel-black">
         <div className="voke-carousel-content-wrapper">
           <span className="voke-carousel-flecha" onClick={moverMensajeIzquierda}>&lt;</span>
-          <span className="voke-carousel-texto">{mensajesVoke[indiceMensaje]}</span>
+          <span className="voke-carousel-texto">{MENSAJES_VOKE[indiceMensaje]}</span>
           <span className="voke-carousel-flecha" onClick={moverMensajeDerecha}>&gt;</span>
         </div>
       </div>
