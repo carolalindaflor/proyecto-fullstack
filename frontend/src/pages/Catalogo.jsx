@@ -25,10 +25,14 @@ const Catalogo = () => {
       setCargando(true);
       try {
         // Cargamos el inventario y las categorías reales desde PostgreSQL.
-        const [respuestaProductos, respuestaCategorias] = await Promise.all([
-          api.get('/produtos'),
-          api.get('/categorias')
-        ]);
+       const opcionesCatalogo = import.meta.env.DEV
+  ? { baseURL: '/catalog-api' }
+  : {};
+
+const [respuestaProductos, respuestaCategorias] = await Promise.all([
+  api.get('/produtos', opcionesCatalogo),
+  api.get('/categorias', opcionesCatalogo)
+]);
         let listaFiltrada = respuestaProductos.data || [];
         const categorias = respuestaCategorias.data || [];
         setCategorias(categorias);
@@ -113,7 +117,7 @@ const Catalogo = () => {
 
         {/* CONTENEDOR CENTRAL MAESTRO LIMPIO DE ESTILOS INLINE */}
         <div className="voke-catalogo-container">
-          
+
           {/* ENCABEZADO DE OFERTAS DINÁMICO */}
           <div className="voke-catalogo-header-row">
             <span className="voke-catalogo-rayo">⚡</span>
@@ -162,7 +166,7 @@ const Catalogo = () => {
 
                   return (
                     <div key={prod.id} className="voke-tarjeta-producto">
-                      
+
                       {/* HEADER INTERNO */}
                       <div className="voke-tarjeta-header">
                         <span className="voke-tarjeta-stock">
@@ -170,17 +174,17 @@ const Catalogo = () => {
                         </span>
 
                         <div className="voke-tarjeta-acciones">
-                          <button 
-                            type="button" 
-                            onClick={() => setFavoritos(prev => ({ ...prev, [prod.id]: !prev[prod.id] }))} 
+                          <button
+                            type="button"
+                            onClick={() => setFavoritos(prev => ({ ...prev, [prod.id]: !prev[prod.id] }))}
                             className="voke-tarjeta-btn-icon"
                           >
                             {favoritos[prod.id] ? '❤️' : '🖤'}
                           </button>
-                          <button 
-                            type="button" 
-                            disabled={prod.stock <= 0} 
-                            onClick={() => manejarAgregarAlCarrito(prod.id, prod.nombre)} 
+                          <button
+                            type="button"
+                            disabled={prod.stock <= 0}
+                            onClick={() => manejarAgregarAlCarrito(prod.id, prod.nombre)}
                             className="voke-tarjeta-btn-icon"
                           >
                             🛒
@@ -190,10 +194,10 @@ const Catalogo = () => {
 
                       {/* CAJA DE IMAGEN */}
                       <div className="voke-tarjeta-imagen-box">
-                        <img 
-                          src={urlImagen} 
-                          alt={prod.nombre} 
-                          className="voke-tarjeta-img" 
+                        <img
+                          src={urlImagen}
+                          alt={prod.nombre}
+                          className="voke-tarjeta-img"
                         />
                       </div>
 

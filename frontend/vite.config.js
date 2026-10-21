@@ -1,23 +1,23 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev
-export default defineConfig(({ command }) => {
-  return {
-    plugins: [react()],
-    
-    /* 🚀 ENTORNO INTELIGENTE AUTOMÁTICO:
-       Si estás ejecutando localmente (command === 'serve'), la base queda vacía '/' para localhost:5173.
-       Si estás ejecutando la subida (npm run deploy / command === 'build'), inyecta la ruta para GitHub Pages. */
-    base: command === 'build' ? '/proyecto-fullstack/' : '/',
+export default defineConfig(({ command }) => ({
+  plugins: [react()],
+
+  base: command === 'build' ? '/proyecto-fullstack/' : '/',
+
+  server: {
+    proxy: {
+      '/catalog-api': {
+        target: 'https://proyecto-fullstack-mj38.onrender.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/catalog-api/, '/api'),
+        configure: (proxy) => {
+          proxy.on('proxyReq', (proxyReq) => {
+            proxyReq.removeHeader('origin')
+          })
+        }
+      }
+    }
   }
-})
-
-// import react from '@vitejs/plugin-react'
-// import { defineConfig } from 'vite'
-
-// // https://vite.dev/config/
-// export default defineConfig({
-//   plugins: [react()],
-//   base: '/proyecto-fullstack/', 
-// })
+}))

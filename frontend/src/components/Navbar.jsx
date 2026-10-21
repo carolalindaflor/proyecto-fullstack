@@ -144,7 +144,17 @@ const Navbar = () => {
 
       {/* 2. BARRA PRINCIPAL */}
       <div className="voke-navbar-main">
-        <Link to="/" className="voke-nav-logo">voke</Link>
+        <Link
+          to="/"
+          className="voke-nav-logo"
+          aria-label="Voke Brasil"
+        >
+          <img
+            src={`${import.meta.env.BASE_URL}logo-voke.jpeg`}
+            alt="Voke Brasil"
+            className="voke-nav-logo-img"
+          />
+        </Link>
         
         {/* RESTRUCTURACIÓN: EL BUSCADOR AHORA ES UN FORMULARIO FUNCIONAL */}
         <form onSubmit={manejarBusquedaSubmit} className="voke-search-container">

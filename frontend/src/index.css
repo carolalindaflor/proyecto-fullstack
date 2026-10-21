@@ -2723,3 +2723,240 @@ video {
     padding: 16px 12px;
   }
 }
+/* CAROLINA - VOKE BRASIL: melhorias visuais */
+
+.voke-nav-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.voke-nav-logo-img {
+  display: block;
+  width: auto;
+  max-width: 160px;
+  height: 48px;
+  object-fit: contain;
+}
+
+@media (max-width: 600px) {
+  .voke-nav-logo-img {
+    max-width: 120px;
+    height: 38px;
+  }
+}
+
+/* Mostrar o titulo completo dos produtos */
+.voke-tarjeta-titulo {
+  display: block;
+  height: auto;
+  max-height: none;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+  line-clamp: unset;
+  -webkit-box-orient: initial;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-height: 1.45;
+  font-size: 0.92rem;
+}
+
+/* CAROLINA - VOKE BRASIL: melhorias visuais dos cartoes */
+
+.voke-tarjeta-producto {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  padding: 18px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.voke-tarjeta-producto:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+}
+
+.voke-tarjeta-stock {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: #ecfdf5;
+  color: #047857;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.voke-tarjeta-imagen-box {
+  height: 190px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 14px 0;
+  padding: 12px;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.voke-tarjeta-img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 0.25s ease;
+}
+
+.voke-tarjeta-producto:hover .voke-tarjeta-img {
+  transform: scale(1.04);
+}
+
+.voke-tarjeta-detalles {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.voke-tarjeta-precio-pix {
+  color: #0f766e;
+  font-size: 1.15rem;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.voke-tarjeta-precio-cuotas {
+  color: #475569;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.voke-tarjeta-cuota-destacada {
+  color: #172033;
+  font-weight: 700;
+}
+
+.voke-tarjeta-envio {
+  margin-top: 4px;
+  color: #047857;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.voke-tarjeta-acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.voke-tarjeta-btn-icon {
+  min-width: 38px;
+  min-height: 38px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.voke-tarjeta-btn-icon:hover:not(:disabled) {
+  border-color: #0f766e;
+  background: #f0fdfa;
+}
+
+.voke-tarjeta-btn-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+@media (max-width: 600px) {
+  .voke-vitrina-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .voke-tarjeta-producto {
+    padding: 12px;
+    border-radius: 12px;
+  }
+
+  .voke-tarjeta-imagen-box {
+    height: 135px;
+    padding: 6px;
+  }
+
+  .voke-tarjeta-precio-pix {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 360px) {
+  .voke-vitrina-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .voke-tarjeta-imagen-box {
+    height: 180px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voke-tarjeta-producto,
+  .voke-tarjeta-img,
+  .voke-tarjeta-btn-icon {
+    transition: none;
+  }
+
+  .voke-tarjeta-producto:hover {
+    transform: none;
+  }
+
+  .voke-tarjeta-producto:hover .voke-tarjeta-img {
+    transform: none;
+  }
+}
+/* VOKE GRID FINAL: 4 cards desktop */
+
+.voke-vitrina-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 16px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.voke-vitrina-grid .voke-tarjeta-producto {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .voke-vitrina-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .voke-vitrina-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 380px) {
+  .voke-vitrina-grid {
+    grid-template-columns: 1fr;
+  }
+}
