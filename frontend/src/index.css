@@ -725,10 +725,19 @@ video {
   text-transform: lowercase;
 }
 
-.voke-logo-sub {
-  font-size: 13px;
-  color: var(--voke-almost-black);
-  margin: 4px 0 0 0;
+/* Logotipo na tela de login */
+.voke-logo-image-link {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.voke-login-logo-image {
+  display: block;
+  width: 150px;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
 }
 
 /* Bloques de Títulos internos */
