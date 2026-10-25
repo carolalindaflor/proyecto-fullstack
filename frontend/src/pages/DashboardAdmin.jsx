@@ -241,24 +241,53 @@ const DashboardAdmin = () => {
   const productosStockBajo = productos.filter(producto => Number(producto.stock || 0) <= 5);
   const pedidosPendientes = pedidos.filter(pedido => !['Entregado', 'Devuelto', 'No entregado'].includes(pedido.status_envio));
   const secciones = [
-    { id: 'resumen', icono: '▦', nombre: 'Resumen' },
-    { id: 'envios', icono: '◷', nombre: 'Monitoreo de envíos', contador: logisticaData.en_camino },
-    { id: 'pedidos', icono: '☷', nombre: 'Pedidos y despachos', contador: pedidosPendientes.length },
-    { id: 'inventario', icono: '▤', nombre: 'Inventario y alertas', contador: productosStockBajo.length },
-    { id: 'alta-producto', icono: '+', nombre: 'Agregar producto' },
-    { id: 'productos', icono: '▣', nombre: 'Administrar productos' },
-    { id: 'categorias', icono: '⌘', nombre: 'Categorías' },
-    { id: 'personal', icono: '♙', nombre: 'Personal y roles' }
-  ];
+  { id: 'resumen', icono: '▦', nombre: 'Resumo' },
+  {
+    id: 'envios',
+    icono: '◷',
+    nombre: 'Monitoramento de envios',
+    contador: logisticaData.en_camino
+  },
+  {
+    id: 'pedidos',
+    icono: '▤',
+    nombre: 'Pedidos e despachos',
+    contador: pedidosPendientes.length
+  },
+  {
+    id: 'inventario',
+    icono: '▣',
+    nombre: 'Inventário e alertas',
+    contador: productosStockBajo.length
+  },
+  { id: 'alta-producto', icono: '+', nombre: 'Adicionar produto' },
+  { id: 'productos', icono: '▤', nombre: 'Administrar produtos' },
+  { id: 'categorias', icono: '◇', nombre: 'Categorias' },
+  { id: 'personal', icono: '♙', nombre: 'Equipe e permissões' }
+];
   return (
     <div className="voke-dashboard-wrapper-principal">
-      <div className="voke-dashboard-heading-row">
-        <div className="voke-form-title-block">
-          <p className="voke-dashboard-eyebrow">VOKE BRASIL / ADMINISTRACIÓN</p>
-          <h2 className="voke-form-title-text">{secciones.find(seccion => seccion.id === seccionActiva)?.nombre || 'Resumen'}</h2>
-          <p className="voke-form-subtitle-text">Operación de tienda y control de inventario</p>
-        </div>
-      </div>
+    <div className="voke-dashboard-heading-row">
+    <img
+      src="/logo-deshboardadm.jpeg"
+      alt="Logo Voke Brasil"
+      className="voke-logo-dashboard"
+    />
+
+    <div className="voke-form-title-block">
+      <p className="voke-dashboard-eyebrow">
+        VOKE BRASIL / ADMINISTRAÇÃO
+      </p>
+
+      <h2 className="voke-form-title-text">
+        {secciones.find(seccion => seccion.id === seccionActiva)?.nombre || 'Resumen'}
+      </h2>
+
+      <p className="voke-form-subtitle-text">
+        Gestão da loja e controle de estoque
+      </p>
+    </div>
+  </div>
 
       <div className="voke-dashboard-layout">
         <aside className="voke-dashboard-sidebar" aria-label="Navegación administrativa">
@@ -769,7 +798,7 @@ const DashboardAdmin = () => {
       </section>
       )}
 
-        </main>
+</main>
       </div>
     </div>
   );
