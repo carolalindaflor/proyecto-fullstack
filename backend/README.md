@@ -188,3 +188,121 @@ curl -X GET http://localhost:3001/api/carrinhos -H "Authorization: Bearer <SU_TO
 * **Método:** `DELETE`
 * **URL:** `/api/carrinhos/:productoId`
 * **Acceso:** **Privado (Requiere Token JWT)**
+
+---
+
+## Diagrama Entidade-Relacionamento (DER)
+
+**Estado:** versão provisória para revisão e validação por Alberto.
+
+Este diagrama representa as principais tabelas e relações da base de dados PostgreSQL. As chaves primárias, as cardinalidades e as restrições de unicidade devem ser confirmadas antes de considerar o modelo definitivo.
+```mermaid
+erDiagram
+    USUARIOS ||--o{ PEDIDOS : realiza
+    USUARIOS ||--o{ CARRITOS : possui
+    USUARIOS ||--o{ CLIENTES_PERFIL : possui
+
+    CATEGORIAS ||--o{ PRODUCTOS : classifica
+    CARRITOS ||--o{ CARRITO_ELEMENTOS : contem
+    PRODUCTOS ||--o{ CARRITO_ELEMENTOS : inclui
+
+    PEDIDOS ||--o{ PEDIDO_ELEMENTOS : contem
+    PRODUCTOS ||--o{ PEDIDO_ELEMENTOS : vendido
+    PEDIDOS ||--o{ SEGUIMIENTO_ENVIOS : acompanha
+    PRODUCTOS ||--o{ PRODUCTO_IMAGENES : possui
+    PRODUCTOS ||--o{ METRICAS_TIENDA : mede
+
+    USUARIOS {
+        int id PK
+        string email
+        string perfil
+    }
+
+    CATEGORIAS {
+        int id PK
+    }
+
+    PRODUCTOS {
+        int id PK
+        int categoria_id FK
+    }
+
+    CARRITOS {
+        int id PK
+        int usuario_id FK
+    }
+
+    CARRITO_ELEMENTOS {
+        int id PK
+        int carrito_id FK
+        int producto_id FK
+    }
+
+    PEDIDOS {
+        int id PK
+        int usuario_id FK
+    }
+
+    PEDIDO_ELEMENTOS {
+        int id PK
+        int pedido_id FK
+        int producto_id FK
+    }
+
+    CLIENTES_PERFIL {
+        int id PK
+        int usuario_id FK
+    }
+
+    PRODUCTO_IMAGENES {
+        int id PK
+        int producto_id FK
+    }
+
+    SEGUIMIENTO_ENVIOS {
+        int id PK
+        int pedido_id FK
+    }
+
+    METRICAS_TIENDA {
+        int id PK
+        int producto_id FK
+    }
+```
+
+
+ ## Histórias de Usuário
+
+Esta secção descreve as principais necessidades dos utilizadores da plataforma Voke Brasil. As histórias devem ser validadas com as funcionalidades disponíveis no sistema antes de serem consideradas requisitos implementados.
+
+1. Visitante
+
+Como visitante, quero visualizar os produtos disponíveis na loja para conhecer o catálogo.
+
+Como visitante, quero consultar os detalhes de um produto, incluindo preço, descrição e imagem, para avaliar se tenho interesse em comprá-lo.
+
+Como visitante, quero pesquisar produtos por nome ou categoria para encontrar artigos específicos.
+
+2. Usuário cadastrado
+
+Como usuário, quero criar uma conta e iniciar sessão para aceder às funcionalidades disponíveis.
+
+Como usuário autenticado, quero adicionar produtos ao carrinho para organizar a minha compra.
+
+Como usuário autenticado, quero alterar a quantidade ou remover produtos do carrinho para ajustar o meu pedido.
+
+Como usuário autenticado, quero finalizar uma compra através do checkout para concluir o pedido, caso esta funcionalidade esteja disponível.
+
+3. Administrador
+
+Como administrador, quero cadastrar novos produtos para manter o catálogo atualizado.
+
+Como administrador, quero atualizar as informações e os preços dos produtos para corrigir ou renovar os dados.
+
+Como administrador, quero excluir produtos do catálogo quando necessário.
+
+Como administrador, quero consultar e gerir os registos do sistema de acordo com as permissões atribuídas à minha conta.
+
+### Nota de validação
+
+Estas histórias representam os requisitos funcionais a documentar. A pesquisa, o checkout e as operações administrativas devem ser conferidos no código e testados antes de serem descritos como funcionalidades concluídas. Os requisitos ainda não implementados devem ser identificados como melhorias futuras.
