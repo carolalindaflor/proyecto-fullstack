@@ -2,6 +2,22 @@
 
 Simulación fullstack de una tienda de productos electrónicos, desarrollada con React, Node.js, Express y PostgreSQL. El proyecto incluye catálogo, categorías y marcas dinámicas, cuentas de cliente, carrito, pagos simulados, seguimiento logístico y panel administrativo.
 
+## User Stories
+
+| Usuário | Ação | Descrição |
+| :--- | :--- | :--- |
+| Visitante | eu posso... | Visualizar todos os produtos disponíveis na loja |
+| Visitante | eu posso... | Consultar os detalhes de um produto, incluindo preço, descrição e imagem |
+| Visitante | eu posso... | Pesquisar produtos por nome ou categoria |
+| Usuário cadastrado | eu posso... | Criar uma conta e fazer login |
+| Usuário (logado) | eu posso... | Adicionar produtos ao meu carrinho |
+| Usuário (logado) | eu posso... | Alterar a quantidade ou remover produtos do carrinho |
+| Usuário (logado) | eu posso... | Finalizar uma compra (checkout) |
+| Administrador | eu posso... | Cadastrar novos produtos |
+| Administrador | eu posso... | Atualizar as informações e os preços dos produtos |
+| Administrador | eu posso... | Excluir produtos do catálogo |
+| Administrador | eu posso... | Consultar e gerenciar os registros do sistema, conforme as permissões definidas |
+
 ## Tecnologías
 
 - Frontend: React y Vite, con HashRouter y CSS propio.
