@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import api from '../config/api';
+import BannerCarousel from '../components/BannerCarousel';
 
 const normalizarTexto = valor => valor
   .toLocaleLowerCase('pt-BR')
@@ -18,33 +19,30 @@ const Catalogo = () => {
   const [actualizarContador, setActualizarContador] = useState(0);
   const [favoritos, setFavoritos] = useState({});
 
-  // SOLUCIÓN AL BLOQUEO DE NAVEGACIÓN: Escucha categorías, marcas y búsquedas en tiempo real
-  // SOLUCIÓN AL BLOQUEO DE NAVEGACIÓN: Mapeo inteligente para base de datos relacional
   useEffect(() => {
     const cargarYFiltrarProductos = async () => {
       setCargando(true);
       try {
-        // Cargamos el inventario y las categorías reales desde PostgreSQL.
-       const opcionesCatalogo = import.meta.env.DEV
-  ? { baseURL: '/catalog-api' }
-  : {};
+        const opcionesCatalogo = import.meta.env.DEV
+          ? { baseURL: '/catalog-api' }
+          : {};
 
-const [respuestaProductos, respuestaCategorias] = await Promise.all([
-  api.get('/produtos', opcionesCatalogo),
-  api.get('/categorias', opcionesCatalogo)
-]);
+        const [respuestaProductos, respuestaCategorias] = await Promise.all([
+          api.get('/produtos', opcionesCatalogo),
+          api.get('/categorias', opcionesCatalogo)
+        ]);
         let listaFiltrada = respuestaProductos.data || [];
-        const categorias = respuestaCategorias.data || [];
-        setCategorias(categorias);
+        const categoriasData = respuestaCategorias.data || [];
+        setCategorias(categoriasData);
 
-        // 2. Extraemos los parámetros de búsqueda de la URL
         const queryParams = new URLSearchParams(location.search);
         const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
         const terminoCategoria = queryParams.get('categoria')?.trim() || '';
         const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
+
         if (terminoCategoria) {
-          const categoriaPorId = categorias.find(categoria => String(categoria.id) === terminoCategoria);
-          const categoriaSeleccionada = categoriaPorId || categorias.find(
+          const categoriaPorId = categoriasData.find(categoria => String(categoria.id) === terminoCategoria);
+          const categoriaSeleccionada = categoriaPorId || categoriasData.find(
             categoria => normalizarTexto(categoria.nombre) === normalizarTexto(terminoCategoria)
           );
 
@@ -53,7 +51,6 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
             : [];
         }
 
-        // 4. FILTRADO INTELIGENTE POR MARCA (Busca la palabra adentro del campo nombre)
         if (terminoMarca) {
           listaFiltrada = listaFiltrada.filter(prod => {
             const nombreProd = (prod.nombre || '').toLowerCase();
@@ -65,7 +62,6 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
           });
         }
 
-        // 5. FILTRADO POR BARRA DE BÚSQUEDA TRADICIONAL
         if (terminoBuscar) {
           listaFiltrada = listaFiltrada.filter(prod => {
             const nombre = (prod.nombre || '').toLowerCase();
@@ -74,9 +70,7 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
           });
         }
 
-        // Cargamos la lista final limpia en la vitrina de React
         setProductos(listaFiltrada);
-
       } catch (error) {
         console.error("Erro ao consumir a API de produtos de Voke:", error);
       }
@@ -115,7 +109,10 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
           </div>
         )}
 
-        {/* CONTENEDOR CENTRAL MAESTRO LIMPIO DE ESTILOS INLINE */}
+        {/* 🌟 BANNER / CARRUSEL PRINCIPAL AL ESTILO VOKE */}
+        <BannerCarousel />
+
+        {/* CONTENEDOR CENTRAL DE LA VITRINA */}
         <div className="voke-catalogo-container">
 
           {/* ENCABEZADO DE OFERTAS DINÁMICO */}
@@ -130,7 +127,7 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
                   String(item.id) === cat || normalizarTexto(item.nombre) === normalizarTexto(cat || '')
                 );
                 const nomeCategoria = categoria?.nombre || cat;
-                if (cat && marc) return `Ofertas em ${nomeCategoria} - ${marc}`;
+                if (cat && marc) return `Ofertas em ${nomeCategoria} ${marc}`;
                 if (cat) return `Ofertas em ${nomeCategoria}`;
                 if (marc) return `Ofertas de ${marc}`;
                 return "As melhores ofertas";
@@ -143,7 +140,6 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
               <p>Buscando estoque local...</p>
             </div>
           ) : (
-            /* VITRINA DE TARJETAS HORIZONTALES CONECTADAS A TU INDEX.CSS */
             <div className="voke-vitrina-grid">
               {productos.length === 0 ? (
                 <div className="voke-alerta-box">
@@ -208,11 +204,11 @@ const [respuestaProductos, respuestaCategorias] = await Promise.all([
 
                         <div className="voke-tarjeta-precios-box">
                           <div className="voke-tarjeta-precio-pix">
-                            R\$ {precioPix.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            R$ {precioPix.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             <span className="voke-form-subtitle-text"> vía PIX</span>
                           </div>
                           <div className="voke-tarjeta-precio-cuotas">
-                            Ou 10x de <span className="voke-tarjeta-cuota-destacada">R\$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            Ou 10x de <span className="voke-tarjeta-cuota-destacada">R$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                           </div>
                           <div className="voke-tarjeta-envio">🚚 Frete grátis</div>
                         </div>
