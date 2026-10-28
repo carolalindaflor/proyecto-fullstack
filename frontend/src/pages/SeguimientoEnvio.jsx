@@ -123,7 +123,7 @@ const SeguimientoEnvio = () => {
               className="voke-submit-btn-black btn-alta-dashboard voke-btn-volver-catalogo"
               title="Voltar para a página principal da loja"
             >
-              ⬅️Voltar ao Catálogo
+              ⬅️ Voltar ao Catálogo
             </button>
           </div>
         </div>

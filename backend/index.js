@@ -1,6 +1,6 @@
 require('dotenv').config();
 if (!process.env.JWT_SECRET) {
-    throw new Error('JWT_SECRET debe estar configurado en el entorno del backend.');
+     throw new Error('JWT_SECRET debe estar configurado en el entorno del backend.');
 }
 const express = require('express');
 const cors = require('cors');
