@@ -272,16 +272,17 @@ const Login = () => {
   // RENDERIZADO VISUAL DEL COMPONENTE
   // ==========================================
   return (
-    <div className="voke-login-card-box">
+  <div className="voke-login-card-box">
     <div className="voke-logo-header">
       <Link to="/" className="voke-logo-image-link">
         <img
-          src="/logo-voke.jpeg"
+          src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
           alt="Logotipo Voke Brasil"
-          className="voke-login-logo-image"/>
-          </Link>
-        <p className="voke-logo-sub">Simulação Loja Brasil</p>
-         </div>
+          className="voke-login-logo-image"
+        />
+      </Link>
+      <p className="voke-logo-sub">Simulação Loja Brasil</p>
+    </div>
         {/* 🕵️‍♂️ LÍNEA DE DEPURACIÓN TEMPORAL DE DATOS (ELIMINAR AL FINAL) */}
          {/* <pre style={{ fontSize: '10px', background: '#eee', padding: '10px', overflowX: 'auto', color: 'black' }}>
           {JSON.stringify(user, null, 2)}
