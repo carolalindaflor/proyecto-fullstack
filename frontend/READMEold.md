@@ -40,3 +40,5 @@ El backend extrae de forma relacional el correo electrónico del cliente (`usuar
 ## 🎨 Adherencia a Reglas de Desarrollo Limpio
 - **Cero Estilos Inline:** Todo el formulario de la pasarela y las tarjetas de datos bancarios fueron estilizados mediante reglas de CSS puro en `index.css`.
 - **Botones Semánticos:** Se corrigieron comportamientos de recarga inválidos en el navegador modificando los atributos a `type="button"` en botones secundarios (borrado, volver, cierres de sesión) y reservando `type="submit"` únicamente para los gatillos de envío principales.
+## npm run build (dentro de tu carpeta frontend)
+## npx gh-pages -d frontend/dist (desde la raíz)
