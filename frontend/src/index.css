@@ -77,12 +77,16 @@ video {
 
 /* Fuerza la separación simétrica de los 3 bloques principales */
 .voke-navbar-main {
-    background-color: var(--voke-menu-beige);
-    padding: 12px 24px;
+    background-color: #F5F3ED;
+    padding: 14px 32px;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
-    border-bottom: 1px solid var(--voke-light-gray);
+    gap: 24px;
+    border-bottom: 1px solid #e5e1d8;
+    box-shadow: 0 3px 12px rgba(23, 45, 73, 0.08);
+    position: relative;
+    z-index: 20;
 }
 
 /* Logotipo da Voke Brasil */
@@ -127,22 +131,35 @@ video {
 /* Contenedor central del buscador */
 .voke-search-container {
     flex: 1;
-    max-width: 500px;
-    margin: 0 20px;
+    max-width: 560px;
+    margin: 0 24px;
     position: relative;
     display: flex;
     align-items: center;
+    background: #FFFFFF;
+    border: 2px solid #295991;
+    border-radius: 12px;
+    padding: 3px 10px;
+    transition: box-shadow 0.3s ease;
 }
 
+.voke-search-container:focus-within {
+    box-shadow: 0 0 0 4px rgba(41, 89, 145, 0.12);
+}
 .voke-search-input {
     width: 100%;
-    padding: 10px 40px 10px 16px;
-    border-radius: 20px; /* BUSCADOR REDONDEADO REAL */
-    border: 1px solid var(--voke-gray);
-    font-size: 13px;
+    padding: 12px 42px 12px 16px;
+    border-radius: 9px;
+    border: none;
+    font-size: 14px;
     outline: none;
-    background-color: var(--voke-white);
+    background-color: transparent;
+    color: #172D49;
     box-sizing: border-box;
+}
+
+.voke-search-input::placeholder {
+    color: #8793A2;
 }
 
 .voke-search-lupa {
@@ -185,13 +202,60 @@ video {
 }
 
 /* FRANJA INFERIOR FUCSIA REQUERIDA */
+/* MENU INFERIOR — VOKE BRASIL */
 .voke-menu-subbar {
-    background-color: var(--voke-pink);
-    padding: 8px 24px;
-    display: flex;
-    align-items: center;
-    position: relative;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  background: linear-gradient(90deg, #295991, #234D7D);
+  min-height: 54px;
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(24, 59, 101, 0.16);
+}
+
+/* LINKS DO MENU */
+.voke-menu-subbar .voke-nav-link {
+  color: #FFFFFF;
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  padding: 10px 16px;
+  border-radius: 25px;
+  white-space: nowrap;
+  transition: all 0.25s ease;
+display: inline-flex;
+align-items: center;
+justify-content: center;
+margin: 0 5px;
+padding: 10px 16px;
+
+}
+
+/* EFEITO AO PASSAR O MOUSE */
+.voke-menu-subbar .voke-nav-link:hover {
+  background: #FE97C5;
+  color: #243247;
+  transform: translateY(-2px);
+}
+
+/* CELULAR */
+@media (max-width: 600px) {
+  .voke-menu-subbar {
+    justify-content: flex-start;
+    gap: 5px;
+    padding: 9px 10px;
+    overflow-x: auto;
+  }
+
+  .voke-menu-subbar .voke-nav-link {
+    font-size: 10px;
+    padding: 9px 11px;
+  }
 }
 
 .voke-menu-hamburguesa {
@@ -261,23 +325,33 @@ video {
 
 .voke-submit-btn-black {
     width: 100%;
-    background-color: var(--voke-black);
+    background-color: var(--voke-blue);
     color: var(--voke-white);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: bold;
-    padding: 12px;
+    padding: 14px;
     border-radius: 24px;
     border: none;
     cursor: pointer;
     text-transform: uppercase;
+    transition: background-color 0.2s, transform 0.2s;
 }
 
+.voke-submit-btn-black:hover {
+    background-color: #1f4775;
+    transform: translateY(-1px);
+}
 .voke-login-footer-info {
     text-align: center;
-    padding-top: 16px;
+    padding-top: 20px;
     border-top: 1px solid var(--voke-light-gray);
-    margin-top: 16px;
-    font-size: 12px;
+    margin-top: 20px;
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.voke-login-footer-info p {
+    margin: 10px 0;
 }
 
 /* ==========================================================================
@@ -356,29 +430,39 @@ video {
    ========================================================================== */
 
 /* Contenedor de la vitrina: Alinea las tarjetas una al lado de la otra */
+/* Grade de produtos em destaque */
 .voke-vitrina-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 24px;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 28px;
+    justify-items: center;
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 32px 16px;
+    padding: 32px 20px;
+    box-sizing: border-box;
 }
 
 /* Caja independiente de cada laptop/smartphone */
 .voke-tarjeta-producto {
     background-color: var(--voke-white);
     border: 1px solid var(--voke-light-gray);
-    border-radius: 6px;
+    border-radius: 14px;
     padding: 20px;
-    width: 260px;
+    width: 100%;
+    max-width: 280px;
     min-height: 380px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     box-sizing: border-box;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.voke-tarjeta-producto:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
 }
 
 /* Fila superior interna de la tarjeta (Stock a la izquierda, iconos a la derecha) */
@@ -822,21 +906,20 @@ video {
 }
 
 .voke-form-input-text {
-  width: 100%;
-  height: 44px;
-  border: 1px solid var(--voke-gray);
-  border-radius: 4px;
-  padding: 0 14px;
-  font-size: 14px;
-  color: var(--voke-black);
-  background-color: var(--voke-white);
-  box-sizing: border-box;
-  transition: border-color 0.2s ease;
+    width: 100%;
+    padding: 13px 14px;
+    border: 1px solid var(--voke-gray);
+    border-radius: 10px;
+    font-size: 14px;
+    box-sizing: border-box;
+    outline: none;
+    background-color: #FFFFFF;
+    transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .voke-form-input-text:focus {
-  outline: none;
-  border-color: var(--voke-blue);
+    border-color: var(--voke-blue);
+    box-shadow: 0 0 0 3px rgba(41, 89, 145, 0.12);
 }
 
 .voke-form-input-text:disabled {
@@ -1226,7 +1309,7 @@ video {
   line-height: 1;
 }
 
-/* Sección Mi Cuenta */
+/*Seção Minha Conta */
 .voke-drawer-account-section {
   background-color: var(--voke-menu-beige);
   border-bottom: 1px solid var(--voke-light-gray);
@@ -3220,4 +3303,133 @@ video {
     width: 60px;
     height: 60px;
   }
+}
+/* =========================================
+   PÁGINA INICIAL - VOKE BRASIL
+   ========================================= */
+
+.voke-inicio {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #F5F3ED;
+}
+
+.voke-inicio-boas-vindas {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px 32px;
+    text-align: center;
+}
+
+.voke-inicio-boas-vindas h1 {
+    color: #295991;
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.voke-inicio-boas-vindas p {
+    max-width: 760px;
+    margin: 0 auto;
+    color: #444;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.voke-inicio-destaques {
+    width: 100%;
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 32px 20px 56px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+.voke-inicio-destaques h2 {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #295991;
+    font-size: clamp(26px, 3vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.3;
+    margin-bottom: 14px;
+}
+
+.voke-inicio-destaques > p {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #475569;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.8;
+    margin-bottom: 12px;
+}
+.voke-inicio-destaques > p {
+    color: #555;
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 12px;
+}
+
+.voke-inicio-ver-produtos {
+    display: inline-block;
+    margin-top: 24px;
+    padding: 13px 28px;
+    border-radius: 8px;
+    background-color: #295991;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.voke-inicio-ver-produtos:hover {
+    background-color: #F4511E;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 600px) {
+    .voke-inicio-boas-vindas {
+        padding: 32px 18px 20px;
+    }
+
+    .voke-inicio-boas-vindas p {
+        font-size: 15px;
+    }
+
+    .voke-inicio-destaques {
+        padding: 24px 12px 40px;
+    }
+}
+/* Tipografia dos cartões de produtos Voke Brasil */
+
+.voke-tarjeta-titulo {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #295991;
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.voke-tarjeta-condicion {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.voke-tarjeta-precio-pix {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #F4511E;
+    font-size: 17px;
+    font-weight: 800;
+    margin-top: 12px;
+}
+
+.voke-tarjeta-precio-cuotas {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 6px;
 }

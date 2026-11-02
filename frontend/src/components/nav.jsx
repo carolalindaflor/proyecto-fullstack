@@ -185,20 +185,45 @@ const Navbar = () => {
       </div>
       {/* 3. FRANJA INFERIOR FUCSIA CON ENLACES FILTRADORES CONECTADOS */}
       <div className="voke-menu-subbar">
-        {/* CORRECCIÓN: Ahora al hacer clic cambia el estado a true y abre el Drawer */}
-        <div className="voke-menu-hamburguesa" onClick={() => setMenuOpen(true)}>☰</div>       
-        <div className="voke-menu-links">
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('ofertas')}>Ofertas de primavera</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Apple')}>tienda Apple</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Samsung')}>Tienda Samsung</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Lenovo')}>Tienda Lenovo</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Dell')}>Tienda Dell</span>
-        </div>
-      </div>
+  <span
+    className="voke-nav-link"
+    onClick={() => navigate('/')}
+  >
+    Início
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => navigate('/')}
+  >
+    Produtos
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => setMenuOpen(true)}
+  >
+    Categorias
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => filtrarPorFiltro('ofertas')}
+  >
+    Ofertas
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => {
+      document.getElementById('contato')?.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }}
+  >
+    Contato
+  </span>
+</div>
       {/* 4. ACOPLE DEL COMPONENTE MENÚ LATERAL */}
       <DrawerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>

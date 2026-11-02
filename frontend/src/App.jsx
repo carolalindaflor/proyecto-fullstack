@@ -1,46 +1,43 @@
-import {HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+
 import Login from './pages/Login';
 import Catalogo from './pages/Catalogo';
+import Inicio from './pages/Inicio';
+import QuemSomos from './pages/QuemSomos';
 import Carrito from './pages/Carrito';
 import DashboardAdmin from './pages/DashboardAdmin';
 import SeguimientoEnvio from './pages/SeguimientoEnvio';
 
-// 🛡️ COMPONENTE GUARDIÁN DE SEGURIDAD (MIDDLEWARE DE FRONTEND)
-// const ProtegerRutaAdmin = ({ children }) => {
-//   const token = localStorage.getItem('voke_token');
-//   const usuarioGuardado = localStorage.getItem('voke_usuario');
-//   const user = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
-
-//   // REGLA DE ACCESO ESTRICTA: Debe tener token activo y perfil de administrador
-//   if (!token || !user || user.perfil !== 'admin') {
-//     // Si no cumple, lo expulsa inmediatamente a la pantalla de acceso tradicional
-//     return <Navigate to="/login" replace />;
-//   }
-
-//   return children;
-// };
-
-// 🛡️ COMPONENTE GUARDIÁN DE SEGURIDAD RECALIBRADO PARA PRODUCCIÓN
+// Proteção da rota administrativa
 const ProtegerRutaAdmin = ({ children }) => {
   const token = localStorage.getItem('voke_token');
   const usuarioGuardado = localStorage.getItem('voke_usuario');
 
-   
-  // 1. Si no hay absolutamente nada en la memoria, se expulsa directo al login
+  // Verifica se o usuário está autenticado
   if (!token || !usuarioGuardado) {
     return <Navigate to="/login" replace />;
   }
 
   let user;
+
   try {
     user = JSON.parse(usuarioGuardado);
   } catch {
-    localStorage.clear();
+    // Remove somente os dados de acesso da Voke
+    localStorage.removeItem('voke_token');
+    localStorage.removeItem('voke_usuario');
+
     return <Navigate to="/login" replace />;
   }
 
-  const perfilReal = user?.perfil || user?.usuario?.perfil || user?.user?.perfil || '';
-  if (perfilReal.toLowerCase() !== 'admin') {
+  // Verifica se o perfil do usuário é administrador
+  const perfilReal =
+    user?.perfil ||
+    user?.usuario?.perfil ||
+    user?.user?.perfil ||
+    '';
+
+  if (String(perfilReal).toLowerCase() !== 'admin') {
     return <Navigate to="/" replace />;
   }
 
@@ -49,32 +46,38 @@ const ProtegerRutaAdmin = ({ children }) => {
 
 function App() {
   return (
-   <Router >
-    <navbar />
+    <Router>
       <div className="voke-layout-wrapper">
         <Routes>
-          {/* Rutas Públicas de la Tienda Comercial */}
-          <Route path="/" element={<Catalogo />} />
+          {/* Página inicial */}
+          <Route path="/" element={<Inicio />} />
+
+          {/* Páginas públicas */}
+          <Route path="/quem-somos" element={<QuemSomos />} />
+          <Route path="/produtos" element={<Catalogo />} />
           <Route path="/login" element={<Login />} />
           <Route path="/carrinho" element={<Carrito />} />
+
+          {/* Acompanhamento de pedidos */}
           <Route path="/seguimiento" element={<SeguimientoEnvio />} />
           <Route path="/seguimiento/:id" element={<SeguimientoEnvio />} />
-          
-          {/* 🔒 RUTA ADMINISTRATIVA TOTALMENTE PROTEGIDA Y ENCAPSULADA */}
-          <Route 
-            path="/admin/dashboard" 
+
+          {/* Painel administrativo protegido */}
+          <Route
+            path="/admin/dashboard"
             element={
               <ProtegerRutaAdmin>
                 <DashboardAdmin />
               </ProtegerRutaAdmin>
-            } 
+            }
           />
 
-          {/* Redirección Universal por defecto */}
-          <Route path="*" element={<Navigate to="/" />} />
+          {/* Redireciona rotas desconhecidas para a página inicial */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>
   );
 }
+
 export default App;

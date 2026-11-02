@@ -15,7 +15,7 @@ const Navbar = () => {
   const [cantidadTotal, setCantidadTotal] = useState(0);
   const [terminoBusqueda, setTerminoBusqueda] = useState('');
   const [ultimoPedidoId, setUltimoPedidoId] = useState(null);
-  
+
   // 🚀 ESTADO ADAPTADO: Controla la apertura del menú desplegable del perfil 👤
   const [perfilMenuOpen, setPerfilMenuOpen] = useState(false);
   // 🚀 ESTADO ADAPTADO: Guarda los datos del usuario logueado de forma local en el componente
@@ -23,7 +23,7 @@ const Navbar = () => {
 
   // ESTADO MAESTRO PARA CONTROLAR LA APERTURA DEL MENÚ LATERAL
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   // Función inteligente para buscar el último pedido activo del usuario logueado
   const buscarUltimoPedidoUsuario = async () => {
     const token = localStorage.getItem('voke_token');
@@ -32,7 +32,7 @@ const Navbar = () => {
     try {
       const configuracion = { headers: { 'Authorization': `Bearer ${token}` } };
       const res = await api.get('/logistica/mis-pedidos', configuracion);
-      
+
       const usuarioGuardado = localStorage.getItem('voke_usuario');
       const user = usuarioGuardado ? JSON.parse(usuarioGuardado) : null;
 
@@ -132,7 +132,7 @@ const Navbar = () => {
     return () => window.removeEventListener('carrito_actualizado', consultarCantidadCarrito);
   }, []);
   return (
-    <div>   
+    <div>
       {/* 1. TOPE: BANNER AJUSTADO AL TEXTO */}
       <div className="voke-top-carousel-black">
         <div className="voke-carousel-content-wrapper">
@@ -155,14 +155,14 @@ const Navbar = () => {
             className="voke-nav-logo-img"
           />
         </Link>
-        
+
         {/* RESTRUCTURACIÓN: EL BUSCADOR AHORA ES UN FORMULARIO FUNCIONAL */}
         <form onSubmit={manejarBusquedaSubmit} className="voke-search-container">
-          <input 
-            type="text" 
+          <input
+            type="text"
             value={terminoBusqueda}
             onChange={(e) => setTerminoBusqueda(e.target.value)}
-            placeholder="Busque o que você precisa..." 
+            placeholder="Busque o que você precisa..."
             className="voke-search-input"
           />
           <span className="voke-search-lupa" onClick={manejarBusquedaSubmit}>🔍</span>
@@ -170,11 +170,11 @@ const Navbar = () => {
 
         <div className="voke-nav-controls">
           <span className="voke-nav-link" title="Favoritos">🖤</span>
-          
+
           {/* ⚡ CONTENEDOR FLOTANTE DEL ICONO DE USUARIO Y SU MENÚ DESPLEGABLE */}
           <div className="voke-profile-menu-container">
-            <span 
-              className="voke-nav-link voke-nav-link-pointer" 
+            <span
+              className="voke-nav-link voke-nav-link-pointer"
               title="Minha Conta"
               onClick={() => {
                 if (!localStorage.getItem('voke_token')) {
@@ -197,15 +197,15 @@ const Navbar = () => {
                 )}
 
                 {/* Opción 1: Modificar Conta (Abre tu CRUD en Login.jsx) */}
-                <div 
+                <div
                   onClick={() => { navigate('/login'); setPerfilMenuOpen(false); }}
                   className="voke-dropdown-item"
                 >
                   ⚙️ Modificar Conta
                 </div>
-                
+
                 {/* Opción 2: Envio (Llama a tu función nativa de rastreo automático) */}
-                <div 
+                <div
                   onClick={() => { irAlRastreoAutomatico(); setPerfilMenuOpen(false); }}
                   className="voke-dropdown-item"
                 >
@@ -215,14 +215,14 @@ const Navbar = () => {
                 <hr className="voke-dropdown-divider" />
 
                 {/* Opción 3: Sair (Cierre de sesión limpio y seguro) */}
-                <div 
+                <div
                   onClick={() => {
                     localStorage.clear();
                     window.dispatchEvent(new Event('carrito_actualizado'));
                     setPerfilMenuOpen(false);
                     setUsuarioActivo(null);
                     navigate('/');
-                  }} 
+                  }}
                   className="voke-dropdown-item voke-dropdown-item-logout"
                 >
                   🚪 Sair
@@ -231,33 +231,60 @@ const Navbar = () => {
             )}
           </div>
 
-          <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
-            <span>🛒</span>
-            <span className="voke-cart-badge">{cantidadTotal}</span>
-          </Link>
-        </div>
-      </div>
+         <Link to="/carrinho" className="voke-nav-link" title="Carrinho">
+        <span>🛒</span>
+         <span className="voke-cart-badge">{cantidadTotal}</span>
+        </Link>
 
-      {/* 3. FRANJA INFERIOR FUCSIA CON ENLACES FILTRADORES CONECTADOS */}
-      <div className="voke-menu-subbar">
-        <div className="voke-menu-hamburguesa" onClick={() => setMenuOpen(true)}>☰</div>       
-        <div className="voke-menu-links">
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('ofertas')}>Ofertas de primavera</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Apple')}>tienda Apple</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Samsung')}>Tienda Samsung</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Lenovo')}>Tienda Lenovo</span>
-          <span>|</span>
-          <span className="voke-nav-link" onClick={() => filtrarPorFiltro('Dell')}>Tienda Dell</span>
-        </div>
-      </div>
+</div> {/* fecha voke-nav-controls */}
 
-      {/* 4. ACOPLE DEL COMPONENTE MENÚ LATERAL */}
+{/* MENU INFERIOR */}
+<div className="voke-menu-subbar">
+      {/* 3. FRANJA INFERIOR FUCSIA */}
+<div className="voke-menu-subbar">
+
+ <span
+  className="voke-nav-link"
+  onClick={() => navigate('/')}
+>
+  Início
+</span>
+ <span
+  className="voke-nav-link"
+  onClick={() => navigate('/quem-somos')}
+>
+  Quem Somos
+</span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => setMenuOpen(true)}
+  >
+    Categorias
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => filtrarPorFiltro('ofertas')}
+  >
+    Ofertas
+  </span>
+
+  <span
+    className="voke-nav-link"
+    onClick={() => {
+      document.getElementById('contato')?.scrollIntoView({
+        behavior: 'smooth'
+      });
+    }}
+  >
+    Contato
+  </span>
+</div>  </div>
+      </div>
+        {/* 4. ACOPLE DEL COMPONENTE MENÚ LATERAL */}
       <DrawerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
     </div>
   );
 };
-
 export default Navbar;

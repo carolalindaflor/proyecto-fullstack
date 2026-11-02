@@ -27,18 +27,30 @@ const Catalogo = () => {
           ? { baseURL: '/catalog-api' }
           : {};
 
-        const [respuestaProductos, respuestaCategorias] = await Promise.all([
-          api.get('/produtos', opcionesCatalogo),
-          api.get('/categorias', opcionesCatalogo)
-        ]);
-        let listaFiltrada = respuestaProductos.data || [];
-        const categoriasData = respuestaCategorias.data || [];
-        setCategorias(categoriasData);
+      const [respuestaProductos, respuestaCategorias] = await Promise.all([
+  api.get('/produtos', opcionesCatalogo),
+  api.get('/categorias', opcionesCatalogo)
+]);
 
-        const queryParams = new URLSearchParams(location.search);
-        const terminoBuscar = queryParams.get('buscar')?.toLowerCase().trim() || '';
-        const terminoCategoria = queryParams.get('categoria')?.trim() || '';
-        const terminoMarca = queryParams.get('marca')?.toLowerCase().trim() || '';
+// Guarda as categorias recebidas da API
+const categoriasData = respuestaCategorias.data || [];
+setCategorias(categoriasData);
+
+// Verifica se a resposta da API é uma lista de produtos
+let listaFiltrada = Array.isArray(respuestaProductos.data)
+  ? respuestaProductos.data
+  : [];
+
+// Recupera os filtros da URL
+const queryParams = new URLSearchParams(location.search);
+const terminoBuscar =
+  queryParams.get('buscar')?.toLowerCase().trim() || '';
+
+const terminoCategoria =
+  queryParams.get('categoria')?.trim() || '';
+
+const terminoMarca =
+  queryParams.get('marca')?.toLowerCase().trim() || '';
 
         if (terminoCategoria) {
           const categoriaPorId = categoriasData.find(categoria => String(categoria.id) === terminoCategoria);
@@ -70,6 +82,8 @@ const Catalogo = () => {
           });
         }
 
+       console.log('TOTAL DE PRODUTOS FILTRADOS:', listaFiltrada.length);
+console.log('PARÂMETROS DA URL:', location.search);
         setProductos(listaFiltrada);
       } catch (error) {
         console.error("Erro ao consumir a API de produtos de Voke:", error);
@@ -116,28 +130,54 @@ const Catalogo = () => {
         <div className="voke-catalogo-container">
 
           {/* ENCABEZADO DE OFERTAS DINÁMICO */}
-          <div className="voke-catalogo-header-row">
-            <span className="voke-catalogo-rayo">⚡</span>
-            <h2 className="voke-catalogo-titulo-principal">
-              {(() => {
-                const queryParams = new URLSearchParams(location.search);
-                const cat = queryParams.get('categoria');
-                const marc = queryParams.get('marca');
-                const categoria = categorias.find(item =>
-                  String(item.id) === cat || normalizarTexto(item.nombre) === normalizarTexto(cat || '')
-                );
-                const nomeCategoria = categoria?.nombre || cat;
-                if (cat && marc) return `Ofertas em ${nomeCategoria} ${marc}`;
-                if (cat) return `Ofertas em ${nomeCategoria}`;
-                if (marc) return `Ofertas de ${marc}`;
-                return "As melhores ofertas";
-              })()}
-            </h2>
-          </div>
+<div className="voke-catalogo-header-row">
+  <span className="voke-catalogo-rayo">⚡</span>
+
+  <h2 className="voke-catalogo-titulo-principal">
+    {(() => {
+      const queryParams = new URLSearchParams(
+        location.search || location.hash.split('?')[1] || ''
+      );
+
+      const cat = queryParams.get('categoria');
+      const marc = queryParams.get('marca');
+
+      const categoria = categorias.find(
+        item => String(item.id) === String(cat)
+      );
+      console.log('Categoria selecionada:', cat);
+console.log('Lista de categorias:', categorias);
+console.log('Categoria encontrada:', categoria);
+console.log('Nome da categoria:', categoria?.nombre);
+console.log('Objeto completo:', JSON.stringify(categoria));
+
+     const nomesCategorias = {
+  notebooks: 'Notebooks',
+  computadores: 'Computadores',
+  smartphones: 'Smartphones',
+  tablets: 'Tablets',
+  monitores: 'Monitores',
+  escritorios: 'Escritórios',
+  cadernos: 'Cadernos',
+  cuadernos: 'Cadernos'
+};
+
+      const nomeOriginal = categoria?.nombre || '';
+      const nomeCategoria =
+        nomesCategorias[normalizarTexto(nomeOriginal)] || nomeOriginal;
+
+      if (cat && marc) return `Ofertas em ${nomeCategoria} ${marc}`;
+      if (cat) return `Ofertas em ${nomeCategoria}`;
+      if (marc) return `Ofertas de ${marc}`;
+
+      return 'As melhores ofertas';
+    })()}
+  </h2>
+</div>
 
           {cargando ? (
             <div className="voke-catalogo-cargando-box">
-              <p>Buscando estoque local...</p>
+              <p>Carregando produtos...</p>
             </div>
           ) : (
             <div className="voke-vitrina-grid">
@@ -166,7 +206,7 @@ const Catalogo = () => {
                       {/* HEADER INTERNO */}
                       <div className="voke-tarjeta-header">
                         <span className="voke-tarjeta-stock">
-                          {prod.stock > 0 ? `Queda ${prod.stock}` : 'Esgotado'}
+                         {prod.stock > 0 ? `Disponíveis: ${prod.stock}` : 'Esgotado'}
                         </span>
 
                         <div className="voke-tarjeta-acciones">
@@ -205,7 +245,7 @@ const Catalogo = () => {
                         <div className="voke-tarjeta-precios-box">
                           <div className="voke-tarjeta-precio-pix">
                             R$ {precioPix.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            <span className="voke-form-subtitle-text"> vía PIX</span>
+                            <span className="voke-form-subtitle-text"> via PIX</span>
                           </div>
                           <div className="voke-tarjeta-precio-cuotas">
                             Ou 10x de <span className="voke-tarjeta-cuota-destacada">R$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
