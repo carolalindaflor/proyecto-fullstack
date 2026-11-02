@@ -457,7 +457,7 @@ const DashboardAdmin = () => {
       {/* CABEÇALHO */}
       <div className="voke-dashboard-heading-row">
         <img
-          src="/logo-deshboardadm.jpeg"
+          src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
           alt="Logo Voke Brasil"
           className="voke-logo-dashboard"
         />
