@@ -76,30 +76,30 @@
 }
 
 
+/* TÍTULO DO BANNER */
 .carousel-text-area h1 {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 2.3rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: clamp(28px, 3.5vw, 40px);
   font-weight: 800;
   line-height: 1.15;
   white-space: pre-line;
-  margin-bottom: 12px;
-  letter-spacing: -0.5px;
-  color: #ffffff;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  margin: 0 0 14px;
+  letter-spacing: -0.8px;
+  color: #FFFFFF;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
+/* DESCRIÇÃO DO BANNER */
 .carousel-text-area p {
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  font-size: 1.05rem;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 16px;
   font-weight: 400;
-  line-height: 1.45;
-  letter-spacing: 0.2px;
-  margin-bottom: 22px;
-  color: #f1f5f9;
+  line-height: 1.7;
+  letter-spacing: 0;
+  margin: 0 0 24px;
+  color: #F8FAFC;
   max-width: 440px;
 }
-
-
 /* Flechas de navegación */
 .carousel-arrow {
   position: absolute;
@@ -175,4 +175,27 @@
   .carousel-image-area img {
     max-height: 170px;
   }
+}
+/* BOTÃO DO BANNER */
+.carousel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 28px;
+  background: #FFFFFF;
+  color: #4C1D95;
+  border: 2px solid #FFFFFF;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.25s ease;
+}
+
+.carousel-btn:hover {
+  background: #6D28D9;
+  color: #FFFFFF;
+  border-color: #6D28D9;
+  transform: translateY(-2px);
 }

@@ -7,6 +7,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 const { iniciarSimuladorLogistico } = require('./config/simuladorLogistico');
 const migrarMarcaProductos = require('./migrations/add-product-brand');
+const crearTablaFavoritos = require('./migrations/create-favoritos');
 
 // IMPORTAR TODAS LAS RUTAS
 const authRoutes = require('./routes/authRoutes');
@@ -18,6 +19,7 @@ const pagoRoutes = require('./routes/pagoRoutes');
 const dashboardRoutes = require('./routes/dashboardRoutes'); 
 const chatbotRoutes = require('./routes/chatbotRoutes'); 
 const logisticaRoutes = require('./routes/logisticaRoutes');
+const favoritoRoutes = require('./routes/favoritoRoutes');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -77,6 +79,7 @@ app.use('/api/pagos', pagoRoutes);
 app.use('/api/dashboard', dashboardRoutes); 
 app.use('/api/chatbot', chatbotRoutes); 
 app.use('/api/logistica', logisticaRoutes);
+app.use('/api/favoritos', favoritoRoutes);
 
 // Ruta de prueba segura
 app.get('/api/prueba', async (req, res) => {
@@ -118,6 +121,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3001;
 
 migrarMarcaProductos()
+    .then(() => crearTablaFavoritos())
     .then(() => {
         app.listen(PORT, () => {
             console.log(`🚀 Servidor backend escuchando en: http://localhost:${PORT}`);

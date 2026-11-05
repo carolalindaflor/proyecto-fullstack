@@ -149,11 +149,34 @@ const Navbar = () => {
           className="voke-nav-logo"
           aria-label="Voke Brasil"
         >
-          <img
-            src={`${import.meta.env.BASE_URL}logo-voke.jpeg`}
-            alt="Voke Brasil"
-            className="voke-nav-logo-img"
-          />
+          <svg
+  width="140"
+  height="90"
+  viewBox="0 0 220 140"
+  fill="none"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img"
+  aria-label="Voke Brasil"
+>
+  <path
+    d="M110 15 C130 15 145 25 140 40 C148 50 142 62 130 68 C120 72 110 65 105 55 C95 55 88 45 92 32 C95 20 102 15 110 15Z"
+    fill="#009944"
+  />
+  <path
+    d="M82 38 L104 68 L138 20 L126 15 L102 52 L88 32Z"
+    fill="#00529B"
+  />
+  <path
+    d="M96 48 L104 60 L126 28 L120 25 L102 50 L98 44Z"
+    fill="#00A859"
+  />
+  <text x="110" y="100" fontFamily="Arial, sans-serif" fontWeight="800" fontSize="28" fill="#0A2540" textAnchor="middle" letterSpacing="1.5">
+    VOKE
+  </text>
+  <text x="110" y="122" fontFamily="Arial, sans-serif" fontWeight="700" fontSize="16" fill="#00529B" textAnchor="middle" letterSpacing="4">
+    BRASIL
+  </text>
+</svg>
         </Link>
 
         {/* RESTRUCTURACIÓN: EL BUSCADOR AHORA ES UN FORMULARIO FUNCIONAL */}
@@ -236,54 +259,57 @@ const Navbar = () => {
          <span className="voke-cart-badge">{cantidadTotal}</span>
         </Link>
 
-</div> {/* fecha voke-nav-controls */}
+</div>
+  </div> {/* fecha voke-navbar-main */}
+   {/* MENU INFERIOR */}
+        <div className="voke-menu-subbar">
 
-{/* MENU INFERIOR */}
-<div className="voke-menu-subbar">
-      {/* 3. FRANJA INFERIOR FUCSIA */}
-<div className="voke-menu-subbar">
+          <span
+            className="voke-nav-link"
+            onClick={() => navigate('/')}
+          >
+            Início
+          </span>
 
- <span
-  className="voke-nav-link"
-  onClick={() => navigate('/')}
->
-  Início
-</span>
- <span
-  className="voke-nav-link"
-  onClick={() => navigate('/quem-somos')}
->
-  Quem Somos
-</span>
+          <span
+            className="voke-nav-link"
+            onClick={() => navigate('/quem-somos')}
+          >
+            Quem Somos
+          </span>
 
-  <span
-    className="voke-nav-link"
-    onClick={() => setMenuOpen(true)}
-  >
-    Categorias
-  </span>
+          <span
+            className="voke-nav-link"
+            onClick={() => setMenuOpen(true)}
+          >
+            Categorias
+          </span>
 
-  <span
-    className="voke-nav-link"
-    onClick={() => filtrarPorFiltro('ofertas')}
-  >
-    Ofertas
-  </span>
+          <span
+            className="voke-nav-link"
+            onClick={() => filtrarPorFiltro('ofertas')}
+          >
+            Ofertas
+          </span>
 
-  <span
-    className="voke-nav-link"
-    onClick={() => {
-      document.getElementById('contato')?.scrollIntoView({
-        behavior: 'smooth'
-      });
-    }}
-  >
-    Contato
-  </span>
-</div>  </div>
-      </div>
-        {/* 4. ACOPLE DEL COMPONENTE MENÚ LATERAL */}
-      <DrawerMenu isOpen={menuOpen} onClose={() => setMenuOpen(false)} />
+          <span
+            className="voke-nav-link"
+            onClick={() => {
+              document.getElementById('contato')?.scrollIntoView({
+                behavior: 'smooth'
+              });
+            }}
+          >
+            Contato
+          </span>
+
+       </div>
+
+      {/* MENU LATERAL */}
+      <DrawerMenu
+        isOpen={menuOpen}
+        onClose={() => setMenuOpen(false)}
+      />
     </div>
   );
 };

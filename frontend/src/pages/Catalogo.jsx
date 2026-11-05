@@ -12,6 +12,7 @@ const normalizarTexto = valor => valor
 
 const Catalogo = () => {
   const location = useLocation();
+
   const [productos, setProductos] = useState([]);
   const [categorias, setCategorias] = useState([]);
   const [cargando, setCargando] = useState(true);
@@ -19,47 +20,56 @@ const Catalogo = () => {
   const [actualizarContador, setActualizarContador] = useState(0);
   const [favoritos, setFavoritos] = useState({});
 
+  // Carregar produtos e categorias
   useEffect(() => {
     const cargarYFiltrarProductos = async () => {
       setCargando(true);
+
       try {
         const opcionesCatalogo = import.meta.env.DEV
           ? { baseURL: '/catalog-api' }
           : {};
 
-      const [respuestaProductos, respuestaCategorias] = await Promise.all([
-  api.get('/produtos', opcionesCatalogo),
-  api.get('/categorias', opcionesCatalogo)
-]);
+        const [respuestaProductos, respuestaCategorias] = await Promise.all([
+          api.get('/produtos', opcionesCatalogo),
+          api.get('/categorias', opcionesCatalogo)
+        ]);
 
-// Guarda as categorias recebidas da API
-const categoriasData = respuestaCategorias.data || [];
-setCategorias(categoriasData);
+        const categoriasData = respuestaCategorias.data || [];
+        setCategorias(categoriasData);
 
-// Verifica se a resposta da API é uma lista de produtos
-let listaFiltrada = Array.isArray(respuestaProductos.data)
-  ? respuestaProductos.data
-  : [];
+        let listaFiltrada = Array.isArray(respuestaProductos.data)
+          ? respuestaProductos.data
+          : [];
 
-// Recupera os filtros da URL
-const queryParams = new URLSearchParams(location.search);
-const terminoBuscar =
-  queryParams.get('buscar')?.toLowerCase().trim() || '';
+        const queryParams = new URLSearchParams(location.search);
 
-const terminoCategoria =
-  queryParams.get('categoria')?.trim() || '';
+        const terminoBuscar =
+          queryParams.get('buscar')?.toLowerCase().trim() || '';
 
-const terminoMarca =
-  queryParams.get('marca')?.toLowerCase().trim() || '';
+        const terminoCategoria =
+          queryParams.get('categoria')?.trim() || '';
+
+        const terminoMarca =
+          queryParams.get('marca')?.toLowerCase().trim() || '';
 
         if (terminoCategoria) {
-          const categoriaPorId = categoriasData.find(categoria => String(categoria.id) === terminoCategoria);
+          const categoriaPorId = categoriasData.find(
+            categoria => String(categoria.id) === terminoCategoria
+          );
+
           const categoriaSeleccionada = categoriaPorId || categoriasData.find(
-            categoria => normalizarTexto(categoria.nombre) === normalizarTexto(terminoCategoria)
+            categoria =>
+              normalizarTexto(categoria.nombre) ===
+              normalizarTexto(terminoCategoria)
           );
 
           listaFiltrada = categoriaSeleccionada
-            ? listaFiltrada.filter(prod => Number(prod.categoria_id) === Number(categoriaSeleccionada.id))
+            ? listaFiltrada.filter(
+                prod =>
+                  Number(prod.categoria_id) ===
+                  Number(categoriaSeleccionada.id)
+              )
             : [];
         }
 
@@ -68,8 +78,10 @@ const terminoMarca =
             const nombreProd = (prod.nombre || '').toLowerCase();
             const marcaProducto = (prod.marca || '').trim();
             const marcaABuscar = terminoMarca.toLocaleLowerCase('pt-BR');
+
             return marcaProducto
-              ? normalizarTexto(marcaProducto) === normalizarTexto(marcaABuscar)
+              ? normalizarTexto(marcaProducto) ===
+                normalizarTexto(marcaABuscar)
               : nombreProd.includes(marcaABuscar);
           });
         }
@@ -78,37 +90,145 @@ const terminoMarca =
           listaFiltrada = listaFiltrada.filter(prod => {
             const nombre = (prod.nombre || '').toLowerCase();
             const descripcion = (prod.descripcion || '').toLowerCase();
-            return nombre.includes(terminoBuscar) || descripcion.includes(terminoBuscar);
+
+            return (
+              nombre.includes(terminoBuscar) ||
+              descripcion.includes(terminoBuscar)
+            );
           });
         }
 
-       console.log('TOTAL DE PRODUTOS FILTRADOS:', listaFiltrada.length);
-console.log('PARÂMETROS DA URL:', location.search);
         setProductos(listaFiltrada);
+
       } catch (error) {
-        console.error("Erro ao consumir a API de produtos de Voke:", error);
+        console.error(
+          'Erro ao consumir a API de produtos de Voke:',
+          error
+        );
+      } finally {
+        setCargando(false);
       }
-      setCargando(false);
     };
 
     cargarYFiltrarProductos();
   }, [location.search]);
 
-  const manejarAgregarAlCarrito = async (idDelProducto, nombreProducto) => {
-    try {
-      setNotificacion('');
+  // Carregar favoritos do cliente autenticado
+  useEffect(() => {
+    const carregarFavoritos = async () => {
       const token = localStorage.getItem('voke_token');
+
       if (!token) {
-        setNotificacion('⚠️ Por favor, faça login para adicionar itens ao carrinho.');
+        setFavoritos({});
         return;
       }
-      await api.post('/carrinhos', { productoId: parseInt(idDelProducto), cantidad: 1 });
-      setNotificacion(`📥 "${nombreProducto}" adicionado ao carrinho!`);
-      setActualizarContador(prev => prev + 1);
-      window.dispatchEvent(new Event('carrito_actualizado'));
+
+      try {
+        const resposta = await api.get('/favoritos');
+
+        const favoritosSalvos = {};
+
+        resposta.data.forEach(favorito => {
+          favoritosSalvos[favorito.id] = true;
+        });
+
+        setFavoritos(favoritosSalvos);
+
+      } catch (error) {
+        console.error('Erro ao carregar favoritos:', error);
+      }
+    };
+
+    carregarFavoritos();
+  }, []);
+
+  // Adicionar ou remover produto dos favoritos
+  const manejarFavorito = async (idDelProducto, nombreProducto) => {
+    const token = localStorage.getItem('voke_token');
+
+    if (!token) {
+      setNotificacion('Faça login para salvar seus favoritos.');
+      return;
+    }
+
+    try {
+      if (favoritos[idDelProducto]) {
+        await api.delete(`/favoritos/${idDelProducto}`);
+
+        setFavoritos(prev => ({
+          ...prev,
+          [idDelProducto]: false
+        }));
+
+        setNotificacion(
+          `"${nombreProducto}" removido dos favoritos.`
+        );
+
+      } else {
+        await api.post('/favoritos', {
+          productoId: Number(idDelProducto)
+        });
+
+        setFavoritos(prev => ({
+          ...prev,
+          [idDelProducto]: true
+        }));
+
+        setNotificacion(
+          `"${nombreProducto}" adicionado aos favoritos!`
+        );
+      }
+
+      window.dispatchEvent(
+        new Event('favoritos_actualizados')
+      );
+
       setTimeout(() => setNotificacion(''), 3000);
+
     } catch (error) {
-      console.error("Erro ao adicionar produto:", error);
+      console.error('Erro ao atualizar favoritos:', error);
+      setNotificacion(
+        'Não foi possível atualizar os favoritos.'
+      );
+    }
+  };
+
+  // Adicionar produto ao carrinho
+  const manejarAgregarAlCarrito = async (
+    idDelProducto,
+    nombreProducto
+  ) => {
+    try {
+      setNotificacion('');
+
+      const token = localStorage.getItem('voke_token');
+
+      if (!token) {
+        setNotificacion(
+          '⚠️ Por favor, faça login para adicionar itens ao carrinho.'
+        );
+        return;
+      }
+
+      await api.post('/carrinhos', {
+        productoId: parseInt(idDelProducto),
+        cantidad: 1
+      });
+
+      setNotificacion(
+        `📥 "${nombreProducto}" adicionado ao carrinho!`
+      );
+
+      setActualizarContador(prev => prev + 1);
+
+      window.dispatchEvent(
+        new Event('carrito_actualizado')
+      );
+
+      setTimeout(() => setNotificacion(''), 3000);
+
+    } catch (error) {
+      console.error('Erro ao adicionar produto:', error);
     }
   };
 
@@ -123,57 +243,61 @@ console.log('PARÂMETROS DA URL:', location.search);
           </div>
         )}
 
-        {/* 🌟 BANNER / CARRUSEL PRINCIPAL AL ESTILO VOKE */}
         <BannerCarousel />
 
-        {/* CONTENEDOR CENTRAL DE LA VITRINA */}
         <div className="voke-catalogo-container">
 
-          {/* ENCABEZADO DE OFERTAS DINÁMICO */}
-<div className="voke-catalogo-header-row">
-  <span className="voke-catalogo-rayo">⚡</span>
+          <div className="voke-catalogo-header-row">
+            <span className="voke-catalogo-rayo">⚡</span>
 
-  <h2 className="voke-catalogo-titulo-principal">
-    {(() => {
-      const queryParams = new URLSearchParams(
-        location.search || location.hash.split('?')[1] || ''
-      );
+            <h2 className="voke-catalogo-titulo-principal">
+              {(() => {
+                const queryParams = new URLSearchParams(
+                  location.search ||
+                  location.hash.split('?')[1] || ''
+                );
 
-      const cat = queryParams.get('categoria');
-      const marc = queryParams.get('marca');
+                const cat = queryParams.get('categoria');
+                const marc = queryParams.get('marca');
 
-      const categoria = categorias.find(
-        item => String(item.id) === String(cat)
-      );
-      console.log('Categoria selecionada:', cat);
-console.log('Lista de categorias:', categorias);
-console.log('Categoria encontrada:', categoria);
-console.log('Nome da categoria:', categoria?.nombre);
-console.log('Objeto completo:', JSON.stringify(categoria));
+                const categoria = categorias.find(
+                  item => String(item.id) === String(cat)
+                );
 
-     const nomesCategorias = {
-  notebooks: 'Notebooks',
-  computadores: 'Computadores',
-  smartphones: 'Smartphones',
-  tablets: 'Tablets',
-  monitores: 'Monitores',
-  escritorios: 'Escritórios',
-  cadernos: 'Cadernos',
-  cuadernos: 'Cadernos'
-};
+                const nomesCategorias = {
+                  notebooks: 'Notebooks',
+                  computadores: 'Computadores',
+                  smartphones: 'Smartphones',
+                  tablets: 'Tablets',
+                  monitores: 'Monitores',
+                  escritorios: 'Escritórios',
+                  cadernos: 'Cadernos',
+                  cuadernos: 'Cadernos'
+                };
 
-      const nomeOriginal = categoria?.nombre || '';
-      const nomeCategoria =
-        nomesCategorias[normalizarTexto(nomeOriginal)] || nomeOriginal;
+                const nomeOriginal = categoria?.nombre || '';
 
-      if (cat && marc) return `Ofertas em ${nomeCategoria} ${marc}`;
-      if (cat) return `Ofertas em ${nomeCategoria}`;
-      if (marc) return `Ofertas de ${marc}`;
+                const nomeCategoria =
+                  nomesCategorias[
+                    normalizarTexto(nomeOriginal)
+                  ] || nomeOriginal;
 
-      return 'As melhores ofertas';
-    })()}
-  </h2>
-</div>
+                if (cat && marc) {
+                  return `Ofertas em ${nomeCategoria} ${marc}`;
+                }
+
+                if (cat) {
+                  return `Ofertas em ${nomeCategoria}`;
+                }
+
+                if (marc) {
+                  return `Ofertas de ${marc}`;
+                }
+
+                return 'As melhores ofertas';
+              })()}
+            </h2>
+          </div>
 
           {cargando ? (
             <div className="voke-catalogo-cargando-box">
@@ -181,54 +305,82 @@ console.log('Objeto completo:', JSON.stringify(categoria));
             </div>
           ) : (
             <div className="voke-vitrina-grid">
+
               {productos.length === 0 ? (
                 <div className="voke-alerta-box">
                   Nenhum produto encontrado para esta busca na Voke.
                 </div>
               ) : (
-                productos.map((prod) => {
+                productos.map(prod => {
                   const precioBase = parseFloat(prod.precio || 0);
                   const precioPix = precioBase * 0.95;
                   const valorCuota = precioBase / 10;
 
                   let urlImagen = 'https://placeholder.com';
+
                   if (prod.imagenes) {
-                    if (Array.isArray(prod.imagenes) && prod.imagenes.length > 0) {
+                    if (
+                      Array.isArray(prod.imagenes) &&
+                      prod.imagenes.length > 0
+                    ) {
                       urlImagen = prod.imagenes[0];
-                    } else if (typeof prod.imagenes === 'string' && prod.imagenes.trim() !== '') {
+
+                    } else if (
+                      typeof prod.imagenes === 'string' &&
+                      prod.imagenes.trim() !== ''
+                    ) {
                       urlImagen = prod.imagenes;
                     }
                   }
 
                   return (
-                    <div key={prod.id} className="voke-tarjeta-producto">
+                    <div
+                      key={prod.id}
+                      className="voke-tarjeta-producto"
+                    >
 
-                      {/* HEADER INTERNO */}
                       <div className="voke-tarjeta-header">
                         <span className="voke-tarjeta-stock">
-                         {prod.stock > 0 ? `Disponíveis: ${prod.stock}` : 'Esgotado'}
+                          {prod.stock > 0
+                            ? `Disponíveis: ${prod.stock}`
+                            : 'Esgotado'}
                         </span>
 
                         <div className="voke-tarjeta-acciones">
-                          <button
-                            type="button"
-                            onClick={() => setFavoritos(prev => ({ ...prev, [prod.id]: !prev[prod.id] }))}
-                            className="voke-tarjeta-btn-icon"
-                          >
-                            {favoritos[prod.id] ? '❤️' : '🖤'}
-                          </button>
+
+                         <button
+                        type="button"
+                      title={
+                        favoritos[prod.id]
+                       ? 'Remover dos favoritos'
+                       : 'Adicionar aos favoritos'
+                       }
+                       onClick={() =>
+                       manejarFavorito(prod.id, prod.nombre)
+                        }
+                     className="voke-tarjeta-btn-icon"
+                    style={{ color: '#6D28D9', fontSize: '22px' }}
+                      >
+                    {favoritos[prod.id] ? '♥' : '♡'}
+                    </button> 
+
                           <button
                             type="button"
                             disabled={prod.stock <= 0}
-                            onClick={() => manejarAgregarAlCarrito(prod.id, prod.nombre)}
+                            onClick={() =>
+                              manejarAgregarAlCarrito(
+                                prod.id,
+                                prod.nombre
+                              )
+                            }
                             className="voke-tarjeta-btn-icon"
                           >
                             🛒
                           </button>
+
                         </div>
                       </div>
 
-                      {/* CAJA DE IMAGEN */}
                       <div className="voke-tarjeta-imagen-box">
                         <img
                           src={urlImagen}
@@ -237,20 +389,41 @@ console.log('Objeto completo:', JSON.stringify(categoria));
                         />
                       </div>
 
-                      {/* INFORMACIÓN DE PRECIOS */}
                       <div className="voke-tarjeta-detalles">
-                        <h3 className="voke-tarjeta-titulo">{prod.nombre}</h3>
-                        <div className="voke-tarjeta-condicion">💖 Muito bom</div>
+                        <h3 className="voke-tarjeta-titulo">
+                          {prod.nombre}
+                        </h3>
+
+                        <div className="voke-tarjeta-condicion">
+                          💖 Muito bom
+                        </div>
 
                         <div className="voke-tarjeta-precios-box">
+
                           <div className="voke-tarjeta-precio-pix">
-                            R$ {precioPix.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            <span className="voke-form-subtitle-text"> via PIX</span>
+                            R$ {precioPix.toLocaleString('pt-BR', {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2
+                            })}
+                            <span className="voke-form-subtitle-text">
+                              {' '}via PIX
+                            </span>
                           </div>
+
                           <div className="voke-tarjeta-precio-cuotas">
-                            Ou 10x de <span className="voke-tarjeta-cuota-destacada">R$ {valorCuota.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                            Ou 10x de{' '}
+                            <span className="voke-tarjeta-cuota-destacada">
+                              R$ {valorCuota.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2
+                              })}
+                            </span>
                           </div>
-                          <div className="voke-tarjeta-envio">🚚 Frete grátis</div>
+
+                          <div className="voke-tarjeta-envio">
+                            🚚 Frete grátis
+                          </div>
+
                         </div>
                       </div>
 
@@ -258,10 +431,13 @@ console.log('Objeto completo:', JSON.stringify(categoria));
                   );
                 })
               )}
+
             </div>
           )}
+
         </div>
       </div>
+
       <Footer />
     </div>
   );

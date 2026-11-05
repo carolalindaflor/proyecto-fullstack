@@ -8,6 +8,8 @@ import { Link } from 'react-router-dom';
 function Inicio() {
   const [produtos, setProdutos] = useState([]);
   const [carregando, setCarregando] = useState(true);
+  const [favoritos, setFavoritos] = useState({});
+  const [notificacao, setNotificacao] = useState('');
 
   useEffect(() => {
     const carregarProdutos = async () => {
@@ -30,28 +32,83 @@ function Inicio() {
     carregarProdutos();
   }, []);
 
+
+
+
+  const manejarFavorito = async (idDelProducto, nombreProducto) => {
+  const token = localStorage.getItem('voke_token');
+
+  if (!token) {
+    setNotificacao('Faça login para salvar seus favoritos.');
+
+    setTimeout(() => {
+      setNotificacao('');
+    }, 3000);
+
+    return;
+  }
+
+  try {
+    if (favoritos[idDelProducto]) {
+      await api.delete(`/favoritos/${idDelProducto}`);
+
+      setFavoritos(prev => ({
+        ...prev,
+        [idDelProducto]: false
+      }));
+
+      setNotificacao(`"${nombreProducto}" removido dos favoritos.`);
+    } else {
+      await api.post('/favoritos', {
+        productoId: Number(idDelProducto)
+      });
+
+      setFavoritos(prev => ({
+        ...prev,
+        [idDelProducto]: true
+      }));
+
+      setNotificacao(`"${nombreProducto}" adicionado aos favoritos!`);
+    }
+
+    setTimeout(() => {
+      setNotificacao('');
+    }, 3000);
+
+  } catch (error) {
+    console.error('Erro ao atualizar favoritos:', error);
+    setNotificacao('Não foi possível atualizar os favoritos.');
+
+    setTimeout(() => {
+      setNotificacao('');
+    }, 3000);
+  }
+};
   return (
     <>
       <Navbar />
+      {notificacao && (
+  <div className="voke-toast-notificacion">
+    {notificacao}
+  </div>)}
 
       <main className="voke-inicio">
         <BannerCarousel />
 
         <section className="voke-inicio-boas-vindas">
-          <h1>Bem-vindo à Voke Brasil!</h1>
-          <p>
-            Encontre tecnologia, qualidade e praticidade em um só lugar.
-            Descubra produtos selecionados e ofertas especiais para facilitar
-            o seu dia a dia.
-          </p>
-        </section>
-
+  <h1>Bem-vindo à Voke Brasil!</h1>
+  <p>
+    Tecnologia inteligente para transformar seu dia a dia.
+    Encontre produtos recondicionados com qualidade,
+    garantia e economia.
+  </p>
+</section>
         <section className="voke-inicio-destaques">
           <h2>Produtos em destaque</h2>
-          <p>
-            Explore nossa seleção de produtos e encontre tecnologia
-            e praticidade para o seu dia a dia.
-          </p>
+<p>
+  Descubra nossa seleção especial de tecnologia
+  e encontre o produto ideal para você.
+</p>
 
           {carregando ? (
             <p>Carregando produtos...</p>
@@ -78,6 +135,23 @@ function Inicio() {
 
                 return (
                   <div key={prod.id} className="voke-tarjeta-producto">
+
+                    <div className="voke-tarjeta-header">
+  <div className="voke-tarjeta-acciones">
+    <button
+      type="button"
+      title={favoritos[prod.id] ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
+      onClick={() => manejarFavorito(prod.id, prod.nombre)}
+      className="voke-tarjeta-btn-icon"
+style={{
+  color: favoritos[prod.id] ? '#DC2626' : '#6D28D9',
+  fontSize: '22px'
+}}
+    >
+      {favoritos[prod.id] ? '♥' : '♡'}
+    </button>
+            </div>
+            </div>
                     <div className="voke-tarjeta-imagen-box">
                       <img
                         src={urlImagem}

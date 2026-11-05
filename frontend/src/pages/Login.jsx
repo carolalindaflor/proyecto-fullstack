@@ -163,7 +163,7 @@ const Login = () => {
       const data = response.data;
       const usuarioActualizado = data.usuario || data.user || data;
 
-      localStorage.setItem('voke_usuario', JSON.stringify(data.usuario));
+      localStorage.setItem('voke_usuario', JSON.stringify(usuarioActualizado));
       setUser(usuarioActualizado);
       setAlerta({ txt: 'Dados pessoais atualizados com sucesso!', err: false });
     } catch (err) {
@@ -220,275 +220,454 @@ const Login = () => {
   // RENDERIZADO VISUAL DEL COMPONENTE
   // ==========================================
   return (
-    <div className="voke-login-card-box">
-     <div className="voke-logo-header">
-  <Link to="/" className="voke-logo-image-link">
-    <img
-      src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
-      alt="Logotipo Voke Brasil"
-      className="voke-login-logo-image"
-    />
-  </Link>
-</div>
-       {faseActual === 'acceso' && !user && (
-        <div className="voke-form-title-block">
-          <h2 className="voke-form-title-text">
-            Bem-vindo(a) à Voke Brasil!
-          </h2>
+    <div className="voke-login-wrapper">
+      <div className="voke-login-page-container">
+        <div className="voke-login-brand-card">
+          <div className="voke-logo-header">
+            <Link to="/" className="voke-logo-image-link">
+           
+              <span className="voke-login-slogan">
+               ✓ Tecnologia recondicionada com garantia e economia
+               </span>
+              <svg
+                width="180"
+                height="120"
+                viewBox="0 0 220 140"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                role="img"
+                aria-label="Voke Brasil"
+              >
+                <path
+                  d="M110 15 C130 15 145 25 140 40 C148 50 142 62 130 68 C120 72 110 65 105 55 C95 55 88 45 92 32 C95 20 102 15 110 15Z"
+                  fill="#009944"
+                />
+                <path
+                  d="M82 38 L104 68 L138 20 L126 15 L102 52 L88 32Z"
+                  fill="#00529B"
+                />
+                <path
+                  d="M96 48 L104 60 L126 28 L120 25 L102 50 L98 44Z"
+                  fill="#00A859"
+                />
+                <text
+                  x="110"
+                  y="100"
+                  fontFamily="Arial, sans-serif"
+                  fontWeight="800"
+                  fontSize="28"
+                  fill="#0A2540"
+                  textAnchor="middle"
+                  letterSpacing="1.5"
+                >
+                  VOKE
+                </text>
+                <text
+                  x="110"
+                  y="122"
+                  fontFamily="Arial, sans-serif"
+                  fontWeight="700"
+                  fontSize="16"
+                  fill="#00529B"
+                  textAnchor="middle"
+                  letterSpacing="4"
+                >
+                  BRASIL
+                </text>
+              </svg>
+            </Link>
+          </div>
 
-          <p className="voke-form-subtitle-text">
-            Entre na sua conta para aproveitar nossas ofertas.
-          </p>
+          {faseActual === 'acceso' && !user && (
+            <div className="voke-form-title-block">
+              <h2 className="voke-form-title-text">Bem-vindo(a) à Voke Brasil!</h2>
+              <p className="voke-form-subtitle-text">
+                Entre na sua conta para aproveitar nossas ofertas.
+              </p>
+            </div>
+          )}
         </div>
-      )}
 
-      {alerta.txt && (
-        <div className={`voke-alerta-box ${alerta.err ? 'voke-alerta-error' : 'voke-alerta-success'}`}>
-          {alerta.txt}
-        </div>
-      )}
+        <div className="voke-login-card-box">
+          {alerta.txt && (
+            <div className="voke-alert" role="alert" aria-live="polite">
+              {alerta.txt}
+            </div>
+          )}
 
-      {/* --- FASE 1: ACCESO --- */}
-      {faseActual === 'acceso' && (
-        <div>
-          {!user ? (
-            <form onSubmit={ingresar}>
+          {faseActual === 'acceso' && (
+            <div>
+              {!user ? (
+                <form onSubmit={ingresar}>
+                  <div className="voke-form-title-block">
+                    <h3 className="voke-form-title-text">Entrar</h3>
+                    <p className="voke-form-subtitle-text">Já é cliente da Voke?</p>
+                  </div>
+
+                  <div className="voke-form-group-block">
+                    <label className="voke-form-label">E-mail</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Digite seu e-mail"
+                      className="voke-form-input-text"
+                    />
+                  </div>
+
+                  <div className="voke-form-group-block">
+                    <label className="voke-form-label">Senha</label>
+                    <input
+                      type="password"
+                      value={pass}
+                      onChange={(e) => setPass(e.target.value)}
+                      placeholder="Digite sua senha"
+                      className="voke-form-input-text"
+                    />
+                  </div>
+
+                  <button type="submit" className="voke-submit-btn-black">
+                    Entrar
+                  </button>
+
+                  <div className="voke-login-footer-info">
+                    <p className="voke-form-subtitle-text">Ainda não tem uma conta na Voke?</p>
+                    <button
+                      type="button"
+                      onClick={() => setFaseActual('registro')}
+                      className="voke-login-link-blue"
+                    >
+                      Criar uma conta
+                    </button>
+                    <Link to="/" className="voke-login-link-blue voke-login-link-block">
+                      Continuar navegando sem entrar
+                    </Link>
+                  </div>
+
+                  <div className="voke-logo-header-forgot">
+                    <button
+                      type="button"
+                      className="voke-login-link-blue-small"
+                      onClick={() => alert('A recuperação de senha será implementada em breve.')}
+                    >
+                      Esqueceu sua senha?
+                    </button>
+                  </div>
+                </form>
+              ) : (
+                <div className="voke-login-footer-info voke-login-footer-centered">
+                  <p className="voke-form-subtitle-text">¿Deseja atualizar seu perfil ou sua senha?</p>
+                  <button
+                    type="button"
+                    onClick={() => setFaseActual('perfil')}
+                    className="voke-login-link-blue voke-login-link-block"
+                  >
+                    Alterar meus dados cadastrais
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {faseActual === 'registro' && !user && (
+            <form onSubmit={registrar}>
               <div className="voke-form-title-block">
-                <h3 className="voke-form-title-text">Entrar</h3>
-            <p className="voke-form-subtitle-text">Já é cliente da Voke?</p>
+                <h3 className="voke-form-title-text">Criar uma conta</h3>
+              </div>
+
+              <div className="voke-radio-group">
+                <label className="voke-radio-label">
+                  <input
+                    type="radio"
+                    checked={tipoDocumento === 'CPF'}
+                    onChange={() => setTipoDocumento('CPF')}
+                  />
+                  CPF
+                </label>
+                <label className="voke-radio-label">
+                  <input
+                    type="radio"
+                    checked={tipoDocumento === 'CNPJ'}
+                    onChange={() => setTipoDocumento('CNPJ')}
+                  />
+                  CNPJ
+                </label>
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">{tipoDocumento}</label>
+                <input
+                  type="text"
+                  value={numDoc}
+                  onChange={(e) => setNumDoc(e.target.value)}
+                  placeholder="000.000.000-00"
+                  className="voke-form-input-text"
+                  required
+                />
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">Nome completo</label>
+                <input
+                  type="text"
+                  value={nombre}
+                  onChange={(e) => setNombre(e.target.value)}
+                  placeholder="Digite seu nome completo."
+                  className="voke-form-input-text"
+                  required
+                />
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">Data de nascimento</label>
+                <input
+                  type="date"
+                  value={fecha}
+                  onChange={(e) => setFecha(e.target.value)}
+                  className="voke-form-input-text"
+                />
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">Sexo</label>
+                <select
+                  value={sexo}
+                  onChange={(e) => setSexo(e.target.value)}
+                  className="voke-form-input-text"
+                >
+                  <option value="">Sexo</option>
+                  <option value="M">Masculino</option>
+                  <option value="F">Feminino</option>
+                </select>
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">Telefone</label>
+                <input
+                  type="text"
+                  value={tel}
+                  onChange={(e) => setTel(e.target.value)}
+                  placeholder="(00) 0000 0000"
+                  className="voke-form-input-text"
+                />
               </div>
 
               <div className="voke-form-group-block">
                 <label className="voke-form-label">E-mail</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu e-mail" className="voke-form-input-text" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Digite seu melhor endereço de e-mail."
+                  className="voke-form-input-text"
+                  required
+                />
               </div>
 
               <div className="voke-form-group-block">
                 <label className="voke-form-label">Senha</label>
-                <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Digite sua senha" className="voke-form-input-text" />
+                <input
+                  type="password"
+                  value={pass}
+                  onChange={(e) => setPass(e.target.value)}
+                  placeholder="Digite sua senha."
+                  className="voke-form-input-text"
+                  required
+                />
               </div>
 
-              <button type="submit" className="voke-submit-btn-black">Entrar</button>
+              <div className="voke-consejos-box">
+                <p className="voke-form-label">Dicas de segurança</p>
+                <p className="voke-consejos-desc">
+                  Evite usar dados pessoais ou senhas que você já utiliza na Voke ou em outros sites.
+                </p>
+                <ul className="voke-consejos-list">
+                  <li>No mínimo 8 caracteres</li>
+                  <li>Letras maiúsculas e minúsculas (A/a)</li>
+                  <li>Pelo menos um número (148)</li>
+                  <li>Caracteres especiais (@$#)</li>
+                  <li>Não utilize sequências previsíveis (123/Abc)</li>
+                </ul>
+              </div>
 
-              <div className="voke-login-footer-info">
-                <p className="voke-form-subtitle-text">Ainda não tem uma conta na Voke?</p>
+              <div className="voke-form-group-block-spaced">
+                <label className="voke-form-label">Confirmar senha</label>
+                <input
+                  type="password"
+                  value={confPass}
+                  onChange={(e) => setConfPass(e.target.value)}
+                  placeholder="Digite novamente a senha."
+                  className="voke-form-input-text"
+                  required
+                />
+              </div>
+
+              <div className="voke-form-group-block">
+                <label className="voke-form-label">Canais de notificação (opcional)</label>
+                <p className="voke-notif-subtext">
+                  Selecione os canais pelos quais deseja receber notificações da Voke.
+                </p>
+                <div className="voke-notif-list">
+                  <label className="voke-notif-label">
+                    <input
+                      type="checkbox"
+                      checked={notifEmail}
+                      onChange={(e) => setNotifEmail(e.target.checked)}
+                    />
+                    E-mail
+                  </label>
+                  <label className="voke-notif-label">
+                    <input
+                      type="checkbox"
+                      checked={notifTel}
+                      onChange={(e) => setNotifTel(e.target.checked)}
+                    />
+                    Telefone
+                  </label>
+                  <label className="voke-notif-label">
+                    <input
+                      type="checkbox"
+                      checked={notifWhatsapp}
+                      onChange={(e) => setNotifWhatsapp(e.target.checked)}
+                    />
+                    WhatsApp
+                  </label>
+                  <label className="voke-notif-label">
+                    <input
+                      type="checkbox"
+                      checked={notifSms}
+                      onChange={(e) => setNotifSms(e.target.checked)}
+                    />
+                    SMS
+                  </label>
+                </div>
+              </div>
+
+              <div className="voke-buttons-flex">
                 <button
                   type="button"
-                  onClick={() => setFaseActual('registro')}
-                  className="voke-login-link-blue"
+                  onClick={() => setFaseActual('acceso')}
+                  className="voke-btn-voltar"
                 >
-                  Criar uma conta
+                  Voltar
                 </button>
-                <Link to="/" className="voke-login-link-blue voke-login-link-block">
-                  Continuar navegando sem entrar
-                </Link>
-              </div>
-
-              <div className="voke-logo-header-forgot">
-                <span className="voke-login-link-blue-small">Esqueceu sua senha?</span>
+                <button type="submit" className="voke-btn-continuar">
+                  Continuar com o cadastro
+                </button>
               </div>
             </form>
-          ) : (
-            <div className="voke-sesion-activa-block">
-              <div className="voke-form-title-block">
-                <h3 className="voke-form-title-text">Olá, {nombre || 'Cliente'}</h3>
-                <p className="voke-form-subtitle-text">Você já está autenticado no sistema da Voke.</p>
-              </div>
+          )}
 
-              <button onClick={() => navigate('/')} className="voke-submit-btn-black">
-                Ir às Compras (Ver Produtos)
-              </button>
-
-              <div className="voke-login-footer-info voke-login-footer-centered">
-                <p className="voke-form-subtitle-text">¿Deseja atualizar seu perfil ou senha?</p>
+          {faseActual === 'perfil' && user && (
+            <div className="voke-perfil-container">
+              <div className="voke-profile-return-wrapper">
                 <button
                   type="button"
-                  onClick={() => setFaseActual('perfil')}
-                  className="voke-login-link-blue voke-login-link-block"
+                  onClick={() => navigate('/')}
+                  className="voke-submit-btn-black voke-btn-return-full"
                 >
-                  Alterar meus dados cadastrais
+                  Voltar para a Loja (Ver Produtos)
+                </button>
+              </div>
+
+              <form onSubmit={modificarDatosBasicos} className="voke-profile-section-form">
+                <div className="voke-form-title-block">
+                  <h3 className="voke-form-title-text-profile">Dados do Cliente</h3>
+                  <p className="voke-form-subtitle-text">Atualize seus dados cadastrais aqui.</p>
+                </div>
+
+                <div className="voke-form-group-block">
+                  <label className="voke-form-label">Nome Completo</label>
+                  <input
+                    type="text"
+                    value={nombre}
+                    onChange={(e) => setNombre(e.target.value)}
+                    className="voke-form-input-text"
+                  />
+                </div>
+
+                <div className="voke-form-group-block">
+                  <label className="voke-form-label">E-mail</label>
+                  <input type="email" value={email} className="voke-form-input-text" disabled />
+                </div>
+
+                <div className="voke-form-group-block">
+                  <label className="voke-form-label">Telefone</label>
+                  <input
+                    type="text"
+                    value={tel}
+                    onChange={(e) => setTel(e.target.value)}
+                    className="voke-form-input-text"
+                  />
+                </div>
+
+                <button type="submit" className="voke-btn-salvar-datos">
+                  Alterar senha (Salvar dados)
+                </button>
+              </form>
+
+              <form onSubmit={modificarContrasena} className="voke-profile-section-form-spaced">
+                <div className="voke-form-title-block">
+                  <h4 className="voke-form-title-subsegment">Alterar Senha de Acesso</h4>
+                </div>
+
+                <div className="voke-form-group-block">
+                  <label className="voke-form-label">Nova Senha</label>
+                  <input
+                    type="password"
+                    value={pass}
+                    onChange={(e) => setPass(e.target.value)}
+                    placeholder="Digite nova senha"
+                    className="voke-form-input-text"
+                  />
+                </div>
+
+                <div className="voke-form-group-block voke-crud-seguridad-box">
+                  <label className="voke-form-label-alert">
+                    Senha Anterior (Obrigatório para alterar senha) *
+                  </label>
+                  <input
+                    type="password"
+                    value={contrasenaAnterior}
+                    onChange={(e) => setContrasenaAnterior(e.target.value)}
+                    placeholder="Digite sua senha atual para validar"
+                    className="voke-form-input-text"
+                  />
+                </div>
+
+                <button type="submit" className="voke-btn-salvar-clave">
+                  Alterar senha (PUT Clave)
+                </button>
+              </form>
+
+              <div className="voke-profile-delete-zone">
+                <p className="voke-delete-warning-text">Deseja excluir sua conta permanentemente?</p>
+                <button type="button" onClick={eliminar} className="voke-btn-eliminar">
+                  Excluir Conta (DELETE)
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    localStorage.clear();
+
+                    if (typeof setUser === 'function') {
+                      setUser(null);
+                    }
+
+                    window.dispatchEvent(new Event('carrito_actualizado'));
+                    setFaseActual('acceso');
+                    navigate('/');
+                  }}
+                  className="voke-btn-volver voke-btn-logout-full"
+                >
+                  Sair da Conta (Logout)
                 </button>
               </div>
             </div>
           )}
         </div>
-      )}
-
-      {/* --- FASE 2: REGISTRO EXTENDIDO --- */}
-      {faseActual === 'registro' && !user && (
-        <form onSubmit={registrar}>
-          <div className="voke-form-title-block">
-            <h3 className="voke-form-title-text">Criar uma conta</h3>
-          </div>
-
-          <div className="voke-radio-group">
-            <label className="voke-radio-label">
-              <input type="radio" checked={tipoDocumento === 'CPF'} onChange={() => setTipoDocumento('CPF')} /> CPF
-            </label>
-            <label className="voke-radio-label">
-              <input type="radio" checked={tipoDocumento === 'CNPJ'} onChange={() => setTipoDocumento('CNPJ')} /> CNPJ
-            </label>
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">{tipoDocumento}</label>
-            <input type="text" value={numDoc} onChange={(e) => setNumDoc(e.target.value)} placeholder="000.000.000-00" className="voke-form-input-text" required />
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Nome completo</label>
-            <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} placeholder="Digite seu nome completo." className="voke-form-input-text" required />
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Data de nascimento</label>
-            <input type="date" value={fecha} onChange={(e) => setFecha(e.target.value)} className="voke-form-input-text" />
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Sexo</label>
-            <select value={sexo} onChange={(e) => setSexo(e.target.value)} className="voke-form-input-text">
-              <option value="">Sexo</option>
-              <option value="M">Masculino</option>
-              <option value="F">Feminino</option>
-            </select>
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Telefone</label>
-            <input type="text" value={tel} onChange={(e) => setTel(e.target.value)} placeholder="(00) 0000 0000" className="voke-form-input-text" />
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">E-mail</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Digite seu melhor endereço de e-mail." className="voke-form-input-text" required />
-          </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Senha</label>
-            <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Digite sua senha." className="voke-form-input-text" required />
-          </div>
-
-            <div className="voke-Dicas de segurança-box">
-              <p className="voke-form-label">:Dicas de segurança</p>
-              <p className="voke-Dicas de segurança-desc">Evite usar dados pessoais ou senhas que você já utiliza na Voke ou em outros sites.</p>
-              <ul className="voke-Dicas de segurança-list">
-                <li>•No mínimo 8 caracteres </li>
-                <li>• Letras maiúsculas e minúsculas  (A/a)</li>
-                <li>• Pelo menos um número (148)</li>
-                <li>• Caracteres especiais (@\$#)</li>
-                <li>• (Não utilize sequências previsíveis 123/Abc)</li>
-              </ul>
-            </div>
-
-            <div className="voke-form-group-block-spaced">
-              <label className="voke-form-label">Confirmar senha</label>
-              <input type="password" value={confPass} onChange={(e) => setConfPass(e.target.value)} placeholder="Digite novamente a senha." className="voke-form-input-text" required />
-            </div>
-
-          <div className="voke-form-group-block">
-            <label className="voke-form-label">Canales de notificación (opcional)</label>
-            <p className="voke-notif-subtext">Selecione os canais pelos quais deseja receber notificações da Voke.</p>
-            <div className="voke-notif-list">
-              <label className="voke-notif-label"><input type="checkbox" checked={notifEmail} onChange={(e) => setNotifEmail(e.target.checked)} /> E-mail</label>
-              <label className="voke-notif-label"><input type="checkbox" checked={notifTel} onChange={(e) => setNotifTel(e.target.checked)} /> Telefone</label>
-              <label className="voke-notif-label"><input type="checkbox" checked={notifWhatsapp} onChange={(e) => setNotifWhatsapp(e.target.checked)} /> WhatsApp</label>
-              <label className="voke-notif-label"><input type="checkbox" checked={notifSms} onChange={(e) => setNotifSms(e.target.checked)} /> SMS</label>
-            </div>
-          </div>
-
-          <div className="voke-buttons-flex">
-            <button type="button" onClick={() => setFaseActual('acceso')} className="voke-btn-"Voltar>Volver</button>
-            <button type="submit" className="voke-btn-continuar">Continuar com o cadastro</button>
-          </div>
-        </form>
-      )}
-
-      {/* --- FASE 3: DADOS DO CLIENTE (PANEL CRUD POST-REGISTRO O LOGIN) --- */}
-      {faseActual === 'perfil' && user && (
-        <div className="voke-perfil-container">
-          <div className="voke-profile-return-wrapper">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="voke-submit-btn-black voke-btn-return-full"
-            >
-              Voltar para a Loja (Ver Produtos)
-            </button>
-          </div>
-
-          <form onSubmit={modificarDatosBasicos} className="voke-profile-section-form">
-            <div className="voke-form-title-block">
-              <h3 className="voke-form-title-text-profile">Dados do Cliente</h3>
-              <p className="voke-form-subtitle-text">Atualize seus dados cadastrais aqui.</p>
-            </div>
-
-            <div className="voke-form-group-block">
-              <label className="voke-form-label">Nome Completo</label>
-              <input type="text" value={nombre} onChange={(e) => setNombre(e.target.value)} className="voke-form-input-text" />
-            </div>
-
-            <div className="voke-form-group-block">
-              <label className="voke-form-label">E-mail</label>
-              <input type="email" value={email} className="voke-form-input-text" disabled />
-            </div>
-
-            <div className="voke-form-group-block">
-              <label className="voke-form-label">Telefone</label>
-              <input type="text" value={tel} onChange={(e) => setTel(e.target.value)} className="voke-form-input-text" />
-            </div>
-
-            <button type="submit" className="voke-btn-salvar-datos">
-              Alterar senha (PUT Datos)
-            </button>
-          </form>
-
-          <form onSubmit={modificarContrasena} className="voke-profile-section-form-spaced">
-            <div className="voke-form-title-block">
-              <h4 className="voke-form-title-subsegment">Alterar Senha de Acesso</h4>
-            </div>
-
-            <div className="voke-form-group-block">
-              <label className="voke-form-label">Nova Senha</label>
-              <input type="password" value={pass} onChange={(e) => setPass(e.target.value)} placeholder="Digite nova senha" className="voke-form-input-text" />
-            </div>
-
-            <div className="voke-form-group-block voke-crud-seguridad-box">
-              <label className="voke-form-label-alert">Senha Anterior (Obrigatório para alterar senha) *</label>
-              <input type="password" value={contrasenaAnterior} onChange={(e) => setContrasenaAnterior(e.target.value)} placeholder="Digite sua senha atual para validar" className="voke-form-input-text" />
-            </div>
-
-            <button type="submit" className="voke-btn-salvar-clave">
-              Alterar Senha (PUT Clave)
-            </button>
-          </form>
-
-          <div className="voke-profile-delete-zone">
-            <p className="voke-delete-warning-text">Deseja excluir sua conta permanentemente?</p>
-            <button type="button" onClick={eliminar} className="voke-btn-eliminar">
-              Excluir Conta (DELETE)
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                localStorage.clear();
-
-                if (typeof setUser === 'function') {
-                  setUser(null);
-                }
-
-                window.dispatchEvent(new Event('carrito_actualizado'));
-                setFaseActual('acceso');
-                navigate('/');
-              }}
-              className="voke-btn-volver voke-btn-logout-full"
-            >
-              Sair da Conta (Logout)
-            </button>
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   );
 };
