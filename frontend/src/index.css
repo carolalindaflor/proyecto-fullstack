@@ -3,6 +3,13 @@
    ========================================================================== */
 
 /* cambios 111026*/
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  overflow-x: hidden; /* Evita cualquier desplazamiento horizontal indeseado */
+}
 *,
 *::before,
 *::after {
@@ -291,12 +298,7 @@ body {
     padding: 20px;
     flex-grow: 1;
 }
-
-body {
-    margin: 0;
-    padding: 0;
-}
-
+/*
 .voke-login-card-box {
     background-color: var(--voke-white);
     width: 100%;
@@ -307,7 +309,7 @@ body {
     box-sizing: border-box;
     box-shadow: 0 4px 12px rgba(0,0,0,0.03);
 }
-
+*/ esta repetido
 .voke-form-group-block {
     display: flex;
     flex-direction: column;
@@ -607,11 +609,21 @@ body {
 }
 
 /* Caja de carrito vacío adaptada */
+/* Agrega esta clase nueva para que el carrito vacío se vea ordenado y centrado */
 .voke-cart-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 20px;
+  margin: 40px auto;
+}
+/*.voke-cart-empty-box {
     max-width: 100%;
     text-align: center;
 }
-
+*/
 /* Distribución horizontal: Items a la izquierda (flex 2) y Resumen a la derecha (flex 1) */
 .voke-cart-flex-layout {
     display: flex;
@@ -3353,9 +3365,7 @@ voke-login-logo-image {
   max-width: 100%;
   height: auto;
   object-fit: contain;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  mix-blend-mode: multiply;
 }
 
 .voke-dashboard-heading-row .voke-dashboard-eyebrow,
@@ -3457,6 +3467,78 @@ voke-login-logo-image {
 .voke-inicio-ver-produtos:hover {
     background-color: #4C1D95;
     transform: translateY(-2px);
+}
+
+.voke-inicio-destaques .voke-tarjeta-titulo {
+    height: auto;
+    min-height: 0;
+    max-height: none;
+    margin: 0;
+    overflow: visible;
+    display: block;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    -webkit-box-orient: initial;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.45;
+}
+
+.voke-tarjeta-descricao {
+    margin: 0;
+    color: #475569;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.voke-vitrina-grid .voke-tarjeta-producto {
+    height: auto;
+    min-height: 380px;
+    justify-content: flex-start;
+    gap: 12px;
+}
+
+.voke-vitrina-grid .voke-tarjeta-header,
+.voke-vitrina-grid .voke-tarjeta-imagen-box,
+.voke-vitrina-grid .voke-tarjeta-detalles {
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.voke-vitrina-grid .voke-tarjeta-detalles {
+    gap: 8px;
+    overflow: visible;
+}
+
+.voke-vitrina-grid .voke-tarjeta-titulo {
+    height: auto;
+    max-height: none;
+    margin: 0;
+    overflow: visible;
+    display: block;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.voke-vitrina-grid .voke-tarjeta-condicion {
+    margin: 0;
+}
+
+.voke-inicio-imagem-indisponivel {
+    width: 100%;
+    height: 100%;
+    border: 0;
+    background: transparent;
+    color: #475569;
+    cursor: pointer;
+    font: inherit;
+}
+
+.voke-inicio-mensagem-imagem {
+    margin: 0 auto;
+    color: #b42318;
+    font-weight: 600;
 }
 
 @media (max-width: 600px) {

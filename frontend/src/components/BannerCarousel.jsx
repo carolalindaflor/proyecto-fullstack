@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import './BannerCarousel.css';
 
 // Lista de banners
@@ -9,8 +10,7 @@ const BANNERS = [
     subtitle: 'Tudo o que seu notebook precisa para mais desempenho e praticidade!',
     bgClass: 'banner-blue',
     imageUrl: 'Imagenes/auriculares.png',
-    buttonText: 'Ver produtos',
-    link: '#/produtos'
+    searchTerm: 'acessórios'
   },
   {
     id: 2,
@@ -18,8 +18,7 @@ const BANNERS = [
     subtitle: 'Desempenho corporativo com garantia de fábrica e o melhor custo-benefício.',
     bgClass: 'banner-dark',
     imageUrl: 'Imagenes/notebook.png',
-    buttonText: 'Ver produtos',
-    link: '#/produtos'
+    searchTerm: 'portátil'
   },
   {
     id: 3,
@@ -27,17 +26,15 @@ const BANNERS = [
     subtitle: 'Tecnologia de ponta com até 40% de economia e garantia de qualidade.',
     bgClass: 'banner-purple',
     imageUrl: 'Imagenes/smartphone.png',
-    buttonText: 'Ver produtos',
-    link: '#/produtos'
+    searchTerm: 'smartphones'
   },
   {
     id: 4,
     title: 'MONITORES\nGamers e Escritório',
     subtitle: 'Imagens nítidas e alta taxa de atualização para seu trabalho ou lazer.',
     bgClass: 'banner-teal',
-    imageUrl: '/Imagenes/monitor.png',
-    buttonText: 'Ver produtos',
-    link: '#/produtos'
+    imageUrl: 'Imagenes/monitor.png',
+    searchTerm: 'monitores'
   }
 ];
 
@@ -68,6 +65,7 @@ function BannerCarousel() {
   };
 
   const currentBanner = BANNERS[currentIndex];
+  const catalogoUrl = `/produtos?buscar=${encodeURIComponent(currentBanner.searchTerm)}`;
 
   return (
     <div className="carousel-wrapper">
@@ -85,19 +83,21 @@ function BannerCarousel() {
         {/* Conteúdo do banner */}
         <div className="carousel-content">
           <div className="carousel-image-area">
-            <img
-              src={currentBanner.imageUrl}
-              alt={currentBanner.title}
-            />
+            <Link
+              to={catalogoUrl}
+              className="carousel-image-link"
+              aria-label={`Ver produtos: ${currentBanner.title.replace('\n', ' ')}`}
+            >
+              <img
+                src={`${import.meta.env.BASE_URL}${currentBanner.imageUrl}`}
+                alt={currentBanner.title.replace('\n', ' ')}
+              />
+            </Link>
           </div>
 
           <div className="carousel-text-area">
             <h1>{currentBanner.title}</h1>
             <p>{currentBanner.subtitle}</p>
-
-            <a href={currentBanner.link} className="carousel-btn">
-              {currentBanner.buttonText}
-            </a>
           </div>
         </div>
 

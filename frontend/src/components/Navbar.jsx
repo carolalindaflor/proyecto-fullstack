@@ -100,9 +100,9 @@ const Navbar = () => {
   const manejarBusquedaSubmit = (e) => {
     e.preventDefault();
     if (terminoBusqueda.trim()) {
-      navigate(`/?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
+      navigate(`/produtos?buscar=${encodeURIComponent(terminoBusqueda.trim())}`);
     } else {
-      navigate('/');
+      navigate('/produtos');
     }
   };
 

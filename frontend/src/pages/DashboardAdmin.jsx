@@ -2,6 +2,19 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../config/api';
 
+const rotulosStatusEnvio = {
+  Pendiente: 'Pendente',
+  Despachado: 'Despachado',
+  'En camino': 'A caminho',
+  Entregado: 'Entregue',
+  Devuelto: 'Devolvido',
+  'No entregado': 'Não entregue'
+};
+
+const rotulosStatusPagamento = {
+  'Pago Aprovado': 'Pagamento aprovado'
+};
+
 const DashboardAdmin = () => {
   const navigate = useNavigate();
 
@@ -457,7 +470,7 @@ const DashboardAdmin = () => {
       {/* CABEÇALHO */}
       <div className="voke-dashboard-heading-row">
         <img
-          src="/logo-deshboardadm.jpeg"
+          src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
           alt="Logo Voke Brasil"
           className="voke-logo-dashboard"
         />
@@ -678,7 +691,7 @@ const DashboardAdmin = () => {
                               : 'role-admin'
                           )
                       }`}>
-                        {pedido.status_envio}
+                        {rotulosStatusEnvio[pedido.status_envio] || pedido.status_envio}
                       </span>
 
                       <strong>
@@ -807,13 +820,13 @@ const DashboardAdmin = () => {
                                 ? 'pill-optimo'
                                 : 'pill-critico'
                             }`}>
-                              {ped.estado_pago}
+                              {rotulosStatusPagamento[ped.estado_pago] || ped.estado_pago}
                             </span>
                           </td>
 
                           <td>
                             <span className="voke-rol-pill role-admin">
-                              {ped.status_envio}
+                              {rotulosStatusEnvio[ped.status_envio] || ped.status_envio}
                             </span>
                           </td>
 
