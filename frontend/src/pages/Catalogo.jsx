@@ -5,7 +5,7 @@ import Footer from '../components/Footer';
 import api from '../config/api';
 import BannerCarousel from '../components/BannerCarousel';
 
-const normalizarTexto = valor => valor
+const normalizarTexto = valor => String(valor || '')
   .toLocaleLowerCase('pt-BR')
   .normalize('NFD')
   .replace(/[\u0300-\u036f]/g, '');
@@ -44,13 +44,13 @@ let listaFiltrada = Array.isArray(respuestaProductos.data)
 // Recupera os filtros da URL
 const queryParams = new URLSearchParams(location.search);
 const terminoBuscar =
-  queryParams.get('buscar')?.toLowerCase().trim() || '';
+  normalizarTexto(queryParams.get('buscar')?.trim() || '');
 
 const terminoCategoria =
   queryParams.get('categoria')?.trim() || '';
 
 const terminoMarca =
-  queryParams.get('marca')?.toLowerCase().trim() || '';
+  normalizarTexto(queryParams.get('marca')?.trim() || '');
 
         if (terminoCategoria) {
           const categoriaPorId = categoriasData.find(categoria => String(categoria.id) === terminoCategoria);
@@ -65,20 +65,22 @@ const terminoMarca =
 
         if (terminoMarca) {
           listaFiltrada = listaFiltrada.filter(prod => {
-            const nombreProd = (prod.nombre || '').toLowerCase();
-            const marcaProducto = (prod.marca || '').trim();
-            const marcaABuscar = terminoMarca.toLocaleLowerCase('pt-BR');
-            return marcaProducto
-              ? normalizarTexto(marcaProducto) === normalizarTexto(marcaABuscar)
-              : nombreProd.includes(marcaABuscar);
+            return normalizarTexto(prod.marca) === terminoMarca;
           });
         }
 
         if (terminoBuscar) {
           listaFiltrada = listaFiltrada.filter(prod => {
-            const nombre = (prod.nombre || '').toLowerCase();
-            const descripcion = (prod.descripcion || '').toLowerCase();
-            return nombre.includes(terminoBuscar) || descripcion.includes(terminoBuscar);
+            const categoriaProducto = categoriasData.find(
+              categoria => String(categoria.id) === String(prod.categoria_id)
+            )?.nombre;
+
+            return [
+              prod.nombre,
+              prod.marca,
+              prod.descripcion,
+              categoriaProducto
+            ].some(campo => normalizarTexto(campo).includes(terminoBuscar));
           });
         }
 
@@ -240,6 +242,11 @@ console.log('Objeto completo:', JSON.stringify(categoria));
                       {/* INFORMACIÓN DE PRECIOS */}
                       <div className="voke-tarjeta-detalles">
                         <h3 className="voke-tarjeta-titulo">{prod.nombre}</h3>
+                        {prod.descripcion?.trim() && (
+                          <p className="voke-tarjeta-descricao">
+                            {prod.descripcion}
+                          </p>
+                        )}
                         <div className="voke-tarjeta-condicion">💖 Muito bom</div>
 
                         <div className="voke-tarjeta-precios-box">
