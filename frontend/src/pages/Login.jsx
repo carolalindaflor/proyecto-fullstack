@@ -220,16 +220,17 @@ const Login = () => {
   // RENDERIZADO VISUAL DEL COMPONENTE
   // ==========================================
   return (
-    <div className="voke-login-card-box">
+    <div className="voke-login-wrapper">
+      <div className="voke-login-card-box">
      <div className="voke-logo-header">
-  <Link to="/" className="voke-logo-image-link">
-    <img
-      src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
-      alt="Logotipo Voke Brasil"
-      className="voke-login-logo-image"
-    />
-  </Link>
-</div>
+        <Link to="/" className="voke-logo-image-link">
+          <img
+             src={`${import.meta.env.BASE_URL}logo-login.jpeg`}
+              alt="Logotipo Voke Brasil"
+              className="voke-login-logo-image"
+            />
+          </Link>
+      </div>
        {faseActual === 'acceso' && !user && (
         <div className="voke-form-title-block">
           <h2 className="voke-form-title-text">
@@ -489,6 +490,7 @@ const Login = () => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

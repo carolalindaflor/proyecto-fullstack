@@ -55,6 +55,12 @@
   padding: 10px;
 }
 
+.carousel-image-link {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .carousel-image-area img {
   max-height: 230px;
   width: auto;

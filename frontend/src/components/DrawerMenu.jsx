@@ -59,7 +59,7 @@ const DrawerMenu = ({ isOpen, onClose }) => {
 
     if (marca) parametros.set('marca', marca);
 
-    navigate(`/?${parametros.toString()}`);
+    navigate(`/produtos?${parametros.toString()}`);
     onClose();
   };
 
